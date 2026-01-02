@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Julius Flavus — EVE Boost Tracker (Roster + Paste)</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #0b0f14; color: #e7eef7; }
+    header { padding: 16px 18px; border-bottom: 1px solid #1a2430; background: #0e141c; position: sticky; top: 0; z-index: 10;}
+    h1 { margin: 0; font-size: 16px; letter-spacing: .3px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 18px; display: grid; gap: 14px; }
+    .row { display: grid; gap: 14px; grid-template-columns: 1.2fr .8fr; }
+    @media (max-width: 980px){ .row { grid-template-columns: 1fr; } }
+    .card { background: #0e141c; border: 1px solid #1a2430; border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+    .muted { color: #9db0c6; }
+    label { font-size: 12px; color: #9db0c6; display:block; margin-bottom: 6px; }
+    textarea { width: 100%; min-height: 240px; resize: vertical; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
+    button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
+    button:hover { background:#152233; }
+    .btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+    .grid2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 740px){ .grid2 { grid-template-columns: 1fr; } }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #1a2430; padding: 8px 6px; font-size: 13px; vertical-align: top; }
+    th { text-align:left; color:#9db0c6; font-weight: 600; }
+    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 4px; }
+    .ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
+    .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
+    .bad { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
+    .small { font-size: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .hr { height: 1px; background:#1a2430; margin: 12px 0; }
+    .right { text-align:right; }
+    .copybox { width:100%; min-height: 110px; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; white-space: pre-wrap; }
+    .foot { color:#9db0c6; font-size: 12px; }
+    .ghostbtn { background: transparent; border-color:#2a3a52; }
+    .ghostbtn:hover { background:#101a25; }
+
+    /* Mindlink toggle */
+    .mlwrap { display:flex; align-items:center; gap:8px; }
+    .mlwrap input[type="checkbox"]{ transform: translateY(1px); }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Julius Flavus’ EVE Boost Tracker</h1>
+</header>
+
+<div class="wrap">
+
+  <div class="row">
+    <div class="card">
+      <label>Paste boost chat lines (you can paste repeatedly; roster persists)</label>
+      <textarea id="chatInput" placeholder='Examples:
+[18:21:20] Julius Flavus > <url=showinfo:42834>Armor Reinforcement Charge</url>  <url=showinfo:42833>Rapid Repair Charge</url> Damnation ML
+[19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>'></textarea>
+
+      <!-- Buttons BELOW paste box -->
+      <div class="btnrow" style="margin-top:10px;">
+        <button id="applyBtn">Apply to roster</button>
+        <button id="clearPasteBtn" class="ghostbtn">Clear paste</button>
+        <button id="clearRosterBtn" class="ghostbtn">Clear roster</button>
+        <span class="muted small" id="statusText"></span>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="muted small">Current roster (remove people who leave/die; toggle ML if needed)</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 30%;">Pilot</th>
+            <th style="width: 18%;">Ship</th>
+            <th style="width: 12%;">ML?</th>
+            <th>Charges</th>
+            <th style="width: 10%;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="rosterTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <label>Wanted charges (one per line)</label>
+      <textarea id="wantedInput" class="mono" style="min-height: 220px;"></textarea>
+
+      <div class="btnrow" style="margin-top:10px;">
+        <button id="loadArmorPvpBtn">Armor PvP set</button>
+        <button id="loadShieldPvpBtn">Shield PvP set</button>
+        <button id="loadMiningBtn">Mining set</button>
+        <button id="clearWantedBtn" class="ghostbtn">Clear wanted</button>
+      </div>
+
+      <p class="foot" style="margin-top:10px;">
+        Uses <b>exact charge names</b> from EVE command burst ammo lists (Armor/Shield/Information/Skirmish/Mining).
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <div class="btnrow" style="justify-content: space-between;">
+        <div>
+          <div class="muted small">Filled vs missing (from roster)</div>
+          <div id="summaryPills"></div>
+        </div>
+        <div class="right">
+          <div class="muted small">Last update</div>
+          <div id="lastUpdate" class="small mono">—</div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%;">Wanted charge</th>
+            <th style="width: 36%;">Filled by (ship + ML)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="wantedTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="muted small">Copy/paste back into EVE chat</div>
+      <div class="hr"></div>
+
+      <label>“Need these charges” message</label>
+      <div class="copybox" id="needMsg"></div>
+      <div class="btnrow" style="margin-top:8px;">
+        <button data-copy="needMsg">Copy</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>“Filled charges (with who/ship/ML)” message</label>
+      <div class="copybox" id="filledMsg"></div>
+      <div class="btnrow" style="margin-top:8px;">
+        <button data-copy="filledMsg">Copy</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Duplicate charges (more than one pilot providing the same charge)</label>
+      <div class="copybox" id="dupeMsg"></div>
+      <div class="btnrow" style="margin-top:8px;">
+        <button data-copy="dupeMsg">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card foot">
+    <b>How it works:</b> You paste chat. We parse <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code> links (including weird <code>//</code> variants),
+    update a <b>persistent roster</b>, then compare roster vs your “wanted” list.
+  </div>
+</div>
+
+<script>
+/** -----------------------------
+ * Storage
+ * ----------------------------- */
+const STORAGE_KEY = "eveBoostTracker_roster_v3_julius";
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return { roster: {}, wantedText: armorPvpWanted().join("\n") };
+  try { return JSON.parse(raw); } catch { localStorage.removeItem(STORAGE_KEY); return loadState(); }
+}
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/** -----------------------------
+ * Charge sets (EVE Uni naming)
+ * ----------------------------- */
+function armorPvpWanted() {
+  return [
+    // Armor
+    "Armor Reinforcement Charge",
+    "Armor Energizing Charge",
+    "Rapid Repair Charge",
+    // Information
+    "Electronic Hardening Charge",
+    "Electronic Superiority Charge",
+    "Sensor Optimization Charge",
+    // Skirmish
+    "Interdiction Maneuvers Charge",
+    "Rapid Deployment Charge",
+    "Evasive Maneuvers Charge"
+  ];
+}
+function shieldPvpWanted() {
+  return [
+    // Shield
+    "Shield Extension Charge",
+    "Shield Harmonizing Charge",
+    "Active Shielding Charge",
+    // Information
+    "Electronic Hardening Charge",
+    "Electronic Superiority Charge",
+    "Sensor Optimization Charge",
+    // Skirmish
+    "Interdiction Maneuvers Charge",
+    "Rapid Deployment Charge",
+    "Evasive Maneuvers Charge"
+  ];
+}
+function miningWanted() {
+  return [
+    // Mining
+    "Mining Laser Optimization Charge",
+    "Mining Equipment Preservation Charge",
+    "Mining Laser Field Enhancement Charge"
+  ];
+}
+
+/** -----------------------------
+ * Category helpers (for Need message prefixing)
+ * - Per your request: don't bother prefixing Armor/Shield (obvious).
+ * - Do prefix Information/Skirmish/Mining.
+ * ----------------------------- */
+const INFO_CHARGES = new Set([
+  "Electronic Hardening Charge",
+  "Electronic Superiority Charge",
+  "Sensor Optimization Charge",
+  "Recon Operation Charge",
+  "Targeting Range Charge"
+].map(s => s.toLowerCase()));
+
+const SKIRMISH_CHARGES = new Set([
+  "Interdiction Maneuvers Charge",
+  "Rapid Deployment Charge",
+  "Evasive Maneuvers Charge",
+  "Interdiction Nullifier Charge"
+].map(s => s.toLowerCase()));
+
+const MINING_CHARGES = new Set([
+  "Mining Laser Optimization Charge",
+  "Mining Equipment Preservation Charge",
+  "Mining Laser Field Enhancement Charge"
+].map(s => s.toLowerCase()));
+
+function needPrefixForCharge(chargeName){
+  const n = (chargeName || "").trim().toLowerCase();
+  if (INFO_CHARGES.has(n)) return "(Info) ";
+  if (SKIRMISH_CHARGES.has(n)) return "(Skirm) ";
+  if (MINING_CHARGES.has(n)) return "(Mining) ";
+  return ""; // Armor/Shield (and anything else) => no prefix
+}
+
+/** -----------------------------
+ * Ship list (provided by you)
+ * ----------------------------- */
+const SHIPS_RAW = `Abaddon
+Absolution
+Adrestia
+Aeon
+Algos
+Aliastra Catalyst
+Alligator
+Amarr Shuttle
+Anathema
+Anshar
+Apocalypse
+Apocalypse Imperial Issue
+Apocalypse Navy Issue
+Apostle
+Apotheosis
+Arazu
+Arbitrator
+Archon
+Ares
+Ark
+Armageddon
+Armageddon Imperial Issue
+Armageddon Navy Issue
+Ashimmu
+Astarte
+Astero
+Atron
+Augoror
+Augoror Navy Issue
+Avalanche
+Avatar
+Azariel
+Badger
+Bane
+Bantam
+Barghest
+Basilisk
+Bellicose
+Bestla
+Bestower
+Bhaalgorn
+Bifrost
+Blackbird
+Boobook
+Bowhead
+Breacher
+Broadsword
+Brutix
+Brutix Navy Issue
+Brutix Navy Issue
+Burst
+Bustard
+Buzzard
+Caedes
+Caiman
+Caldari Navy Hookbill
+Caldari Shuttle
+Cambion
+Caracal
+Caracal Navy Issue
+Catalyst
+Catalyst Navy Issue
+Celestis
+Cenotaph
+Cerberus
+Chameleon
+Charon
+Cheetah
+Chemosh
+Chimera
+Chremoas
+Civilian Amarr Shuttle
+Civilian Caldari Shuttle
+Civilian Gallente Shuttle
+Civilian Minmatar Shuttle
+Claw
+Claymore
+Cobra
+Coercer
+Coercer Navy Issue
+Condor
+Confessor
+Corax
+Cormorant
+Cormorant Navy Issue
+Council Diplomatic Shuttle
+Covetor
+Crane
+Crow
+Crucifier
+Crucifier Navy Issue
+Cruor
+Crusader
+Curse
+Cybele
+Cyclone
+Cyclone Fleet Issue
+Cynabal
+Dagon
+Damavik
+Damnation
+Daredevil
+Deacon
+Deimos
+Deluge
+Devoter
+Dominix
+Dominix Navy Issue
+Dragoon
+Drake
+Drake Navy Issue
+Dramiel
+Draugur
+Drekavac
+Eagle
+Echelon
+Echo
+Eidolon
+Endurance
+Enforcer
+Enyo
+Eos
+Epithal
+Erebus
+Eris
+Etana
+Executioner
+Exequror
+Exequror Navy Issue
+Falcon
+Federation Navy Comet
+Fenrir
+Ferox
+Ferox Navy Issue
+Fiend
+Flycatcher
+Freki
+Gallente Shuttle
+Garmur
+Geri
+Gila
+Gnosis
+Gold Magnate
+Golem
+Goru's Shuttle
+Griffin
+Griffin Navy Issue
+Guardian
+Guardian-Vexor
+Guristas Shuttle
+Harbinger
+Harbinger Navy Issue
+Harpy
+Hawk
+Hecate
+Hel
+Helios
+Hematos
+Heretic
+Heron
+Heron Navy Issue
+Hoarder
+Hound
+Hubris
+Huginn
+Hulk
+Hurricane
+Hurricane Fleet Issue
+Hydra
+Hyena
+Hyperion
+Ibis
+Ikitursa
+Imicus
+Imicus Navy Issue
+Immolator
+Imp
+Impairor
+Impel
+Imperial Navy Slicer
+Incursus
+Inner Zone Shipping Catalyst
+Inner Zone Shipping Imicus
+Inquisitor
+Intaki Syndicate Catalyst
+InterBus Catalyst
+InterBus Shuttle
+Ishkur
+Ishtar
+Iteron Mark V
+Ixion
+Jackdaw
+Jaguar
+Karura
+Keres
+Kestrel
+Khizriel
+Kikimora
+Kirin
+Kitsune
+Komodo
+Kronos
+Kryos
+Lachesis
+Laelaps
+Legion
+Leopard
+Leshak
+Leviathan
+Lif
+Loggerhead
+Loki
+Machariel
+Mackinaw
+Maelstrom
+Magnate
+Magnate Navy Issue
+Magus
+Malediction
+Malice
+Maller
+Mamba
+Mammoth
+Marshal
+Mastodon
+Maulus
+Maulus Navy Issue
+Medusa
+Megathron
+Megathron Federate Issue
+Megathron Navy Issue
+Mekubal
+Merlin
+Metamorphosis
+Miasmos
+Miasmos Amastris Edition
+Miasmos Quafe Ultra Edition
+Miasmos Quafe Ultramarine Edition
+Mimir
+Minmatar Shuttle
+Minokawa
+Moa
+Molok
+Monitor
+Moracha
+Moros
+Moros Navy Issue
+Muninn
+Myrmidon
+Myrmidon Navy Issue
+Naga
+Naglfar
+Naglfar Fleet Issue
+Navitas
+Nemesis
+Nefantar Thrasher
+Nereus
+Nergal
+Nestor
+Nidhoggur
+Nighthawk
+Nightmare
+Ninazu
+Noctis
+Nomad
+Nyx
+Obelisk
+Occator
+Omen
+Omen Navy Issue
+Oneiros
+Onyx
+Opux Luxury Yacht
+Oracle
+Orca
+Orthrus
+Osprey
+Osprey Navy Issue
+Pacifier
+Paladin
+Panther
+Phantasm
+Phantom
+Phobos
+Phoenix
+Phoenix Navy Issue
+Pilgrim
+Pontifex
+Porpoise
+Praxis
+Primae
+Probe
+Probe Fleet Issue
+Procurer
+Prophecy
+Prophecy Navy Issue
+Prorator
+Prospect
+Proteus
+Providence
+Prowler
+Punisher
+Purifier
+Python
+Quafe Catalyst
+Rabisu
+Ragnarok
+Raiju
+Rapier
+Raptor
+Rattlesnake
+Rattlesnake Victory Edition
+Raven
+Raven Navy Issue
+Raven State Issue
+Reaper
+Redeemer
+Republic Fleet Firetail
+Retribution
+Retriever
+Revelation
+Revelation Navy Issue
+Revenant
+Rhea
+Rifter
+Rodiva
+Rokh
+Rook
+Rorqual
+Rupture
+Sabre
+Sacrilege
+Sarum Magnate
+Scalpel
+Scimitar
+Scorpion
+Scorpion Ishukone Watch
+Scorpion Navy Issue
+Scythe
+Scythe Fleet Issue
+Sentinel
+Shapash
+Sidewinder
+Sigil
+Silver Magnate
+Sin
+Skiff
+Skybreaker
+Slasher
+Sleipnir
+Specter
+Squall
+Stabber
+Stabber Fleet Issue
+Stiletto
+Stork
+Stormbringer
+Stratios
+Stratios Emergency Responder
+Succubus
+Sukuuvestaa Heron
+Sunesis
+Svipul
+Taipan
+Talos
+Talwar
+Taranis
+Tash-Murkon Magnate
+Tayra
+Tempest
+Tempest Fleet Issue
+Tempest Tribal Issue
+Tengu
+Thalia
+Thanatos
+Tholos
+Thorax
+Thrasher
+Thrasher Fleet Issue
+Thunderchild
+Tiamat
+Torrent
+Tormentor
+Tornado
+Tristan
+Typhoon
+Typhoon Fleet Issue
+Utu
+Vagabond
+Valravn
+Vangel
+Vanquisher
+Vargur
+Vedmak
+Vehement
+Velator
+Vendetta
+Vengeance
+Venture
+Vexor
+Vexor Navy Issue
+Vherokior Probe
+Viator
+Victor
+Victorieux Luxury Yacht
+Vigil
+Vigil Fleet Issue
+Vigilant
+Vindicator
+Violator
+Virtuoso
+Visitant
+Vulture
+Whiptail
+Widow
+Wolf
+Worm
+Wraith
+Wreathe
+Wyvern
+Zarmazd
+Zealot
+Zephyr
+Zirnitra`;
+
+const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+
+// normalize for matching
+function normShip(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) }))
+  .sort((a,b) => b.norm.length - a.norm.length);
+
+// common typo aliases (add more if you want)
+const SHIP_ALIASES = new Map([
+  ["damntion", "Damnation"]
+]);
+
+/** -----------------------------
+ * UI elements
+ * ----------------------------- */
+const chatInput = document.getElementById("chatInput");
+const wantedInput = document.getElementById("wantedInput");
+const statusText = document.getElementById("statusText");
+const rosterTable = document.getElementById("rosterTable");
+
+const applyBtn = document.getElementById("applyBtn");
+const clearPasteBtn = document.getElementById("clearPasteBtn");
+const clearRosterBtn = document.getElementById("clearRosterBtn");
+
+const loadArmorPvpBtn = document.getElementById("loadArmorPvpBtn");
+const loadShieldPvpBtn = document.getElementById("loadShieldPvpBtn");
+const loadMiningBtn = document.getElementById("loadMiningBtn");
+const clearWantedBtn = document.getElementById("clearWantedBtn");
+
+const summaryPills = document.getElementById("summaryPills");
+const lastUpdate = document.getElementById("lastUpdate");
+const wantedTable = document.getElementById("wantedTable");
+const needMsg = document.getElementById("needMsg");
+const filledMsg = document.getElementById("filledMsg");
+const dupeMsg = document.getElementById("dupeMsg");
+
+/** -----------------------------
+ * Helpers
+ * ----------------------------- */
+function escapeHtml(str) {
+  return (str || "").replace(/[&<>"']/g, s => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[s]));
+}
+function normalizeName(s) {
+  return (s || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+function nowStamp() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function getWantedList() {
+  return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+}
+
+/** -----------------------------
+ * Parsing logic
+ * ----------------------------- */
+/**
+ * Supports:
+ * <url=showinfo:42834>Armor Reinforcement Charge</url>
+ * <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>
+ */
+function extractLinks(line) {
+  const out = [];
+  const re = /<url=showinfo:[^>]*>(.*?)<\/url>/gi;
+  for (const m of line.matchAll(re)) {
+    const name = (m[1] || "").trim();
+    if (name) out.push(name);
+  }
+  // De-dupe within the same line
+  return [...new Set(out)];
+}
+
+function parsePilot(line) {
+  const m = line.match(/^\[\d{2}:\d{2}:\d{2}\]\s+(.+?)\s+>/);
+  return m ? m[1].trim() : "";
+}
+
+function detectMindlink(line) {
+  // Consider ML indicators anywhere (before or after links)
+  return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line);
+}
+
+function detectShip(line) {
+  // Remove url tags to make matching easier
+  const stripped = line
+    .replace(/<url=showinfo:[^>]*>/gi, " ")
+    .replace(/<\/url>/gi, " ")
+    .replace(/^\[\d{2}:\d{2}:\d{2}\]\s+/," ")
+    .replace(/\s+/g," ")
+    .trim();
+
+  const ns = normShip(stripped);
+
+  // alias check for obvious typos
+  for (const token of ns.split(" ")) {
+    if (SHIP_ALIASES.has(token)) return SHIP_ALIASES.get(token);
+  }
+
+  // substring match against normalized ship names (longest first)
+  for (const s of SHIP_NORMS) {
+    if (!s.norm) continue;
+    const pat = new RegExp(`(^|\\s)${escapeRegExp(s.norm)}(\\s|$)`, "i");
+    if (pat.test(ns)) return s.name;
+  }
+
+  return "";
+}
+
+function escapeRegExp(s){
+  return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseLineToRosterUpdate(line) {
+  if (!line.includes("showinfo:")) return null;
+  const pilot = parsePilot(line);
+  if (!pilot) return null;
+
+  const boosts = extractLinks(line);
+  if (!boosts.length) return null;
+
+  const mindlink = detectMindlink(line);
+  const ship = detectShip(line);
+
+  return { pilot, boosts, ship, mindlink };
+}
+
+function parsePastedText(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const updates = [];
+  for (const line of lines) {
+    const u = parseLineToRosterUpdate(line);
+    if (u) updates.push(u);
+  }
+  return updates;
+}
+
+/** -----------------------------
+ * Roster model
+ * roster[pilotNorm] = { pilot, ship, mindlink, boosts:[...], updatedAt }
+ * ----------------------------- */
+let state = loadState();
+
+function upsertRoster(updates) {
+  let added = 0, updated = 0;
+
+  for (const u of updates) {
+    const key = normalizeName(u.pilot);
+    if (!key) continue;
+
+    const existing = state.roster[key];
+
+    if (!existing) {
+      state.roster[key] = {
+        pilot: u.pilot,
+        ship: u.ship || "",
+        mindlink: !!u.mindlink,
+        boosts: u.boosts,
+        updatedAt: Date.now()
+      };
+      added++;
+    } else {
+      // Replace that pilot’s current posted boosts with latest paste
+      existing.pilot = u.pilot;
+      existing.ship = u.ship || existing.ship || "";
+      // Set mindlink from latest paste if present; otherwise keep current toggle state
+      // (so your manual toggle doesn't get wiped by a paste line without ML text)
+      existing.mindlink = (typeof u.mindlink === "boolean" && u.mindlink) ? true : existing.mindlink;
+      // If you WANT "paste without ML clears ML", change the line above to:
+      // existing.mindlink = !!u.mindlink;
+      existing.boosts = u.boosts;
+      existing.updatedAt = Date.now();
+      updated++;
+    }
+  }
+
+  saveState(state);
+  return { added, updated };
+}
+
+function removePilot(pilotKey) {
+  delete state.roster[pilotKey];
+  saveState(state);
+  renderAll("Removed pilot");
+}
+
+function toggleMindlink(pilotKey) {
+  const r = state.roster[pilotKey];
+  if (!r) return;
+  r.mindlink = !r.mindlink;
+  r.updatedAt = Date.now();
+  saveState(state);
+  renderAll(`Mindlink ${r.mindlink ? "enabled" : "disabled"} for ${r.pilot}`);
+}
+
+function clearRoster() {
+  state.roster = {};
+  saveState(state);
+  renderAll("Roster cleared");
+}
+
+/** -----------------------------
+ * Index roster by boost
+ * ----------------------------- */
+function buildRosterBoostIndex() {
+  // boostNorm -> array of {pilot, ship, mindlink}
+  const idx = new Map();
+
+  for (const key of Object.keys(state.roster)) {
+    const r = state.roster[key];
+    const pilot = r.pilot || "?";
+    const ship = r.ship || "";
+    const mindlink = !!r.mindlink;
+
+    for (const b of (r.boosts || [])) {
+      const bn = normalizeName(b);
+      if (!bn) continue;
+      if (!idx.has(bn)) idx.set(bn, []);
+      idx.get(bn).push({ pilot, ship, mindlink, boostName: b });
+    }
+  }
+
+  return idx;
+}
+
+/** -----------------------------
+ * Rendering
+ * ----------------------------- */
+function renderRosterTable() {
+  const keys = Object.keys(state.roster)
+    .sort((a,b) => (state.roster[b].updatedAt||0) - (state.roster[a].updatedAt||0));
+
+  if (!keys.length) {
+    rosterTable.innerHTML = `<tr><td colspan="5" class="muted small">— empty roster —</td></tr>`;
+    return;
+  }
+
+  const rows = [];
+  for (const k of keys) {
+    const r = state.roster[k];
+    rows.push(`
+      <tr>
+        <td>${escapeHtml(r.pilot || "?")}</td>
+        <td class="mono small">${escapeHtml(r.ship || "—")}</td>
+        <td>
+          <div class="mlwrap">
+            <input type="checkbox" data-ml="${escapeHtml(k)}" ${r.mindlink ? "checked" : ""}/>
+            <span class="pill ${r.mindlink ? "ok" : "warn"}">${r.mindlink ? "+ML" : "—"}</span>
+          </div>
+        </td>
+        <td class="mono small">${escapeHtml((r.boosts||[]).join(" | "))}</td>
+        <td><button class="ghostbtn" data-remove="${escapeHtml(k)}">Remove</button></td>
+      </tr>
+    `);
+  }
+  rosterTable.innerHTML = rows.join("");
+
+  // wire remove buttons
+  rosterTable.querySelectorAll("button[data-remove]").forEach(btn => {
+    btn.addEventListener("click", () => removePilot(btn.getAttribute("data-remove")));
+  });
+
+  // wire mindlink toggles
+  rosterTable.querySelectorAll("input[type='checkbox'][data-ml]").forEach(cb => {
+    cb.addEventListener("change", () => toggleMindlink(cb.getAttribute("data-ml")));
+  });
+}
+
+function renderWantedComparison() {
+  const wanted = getWantedList();
+  const idx = buildRosterBoostIndex();
+
+  let filledCount = 0, missingCount = 0;
+
+  wantedTable.innerHTML = "";
+
+  const missing = [];
+  const filled = [];
+  const dupes = []; // {charge, providers[]}
+
+  const rows = [];
+  for (const w of wanted) {
+    const key = normalizeName(w);
+    const fills = idx.get(key) || [];
+
+    if (fills.length) filledCount++; else missingCount++;
+
+    if (!fills.length) missing.push(w);
+    else filled.push(w);
+
+    const providers = fills.map(f => {
+      const ship = f.ship ? ` (${f.ship})` : "";
+      const ml = f.mindlink ? " +ML" : "";
+      return `${f.pilot}${ship}${ml}`.trim();
+    });
+
+    const isDupe = fills.length > 1;
+    if (isDupe) dupes.push({ charge: w, providers });
+
+    const fillText = providers.length ? providers.join("\n") : "—";
+    const notes = !fills.length
+      ? "Not on roster yet"
+      : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
+
+    rows.push(`
+      <tr>
+        <td><span class="pill ${fills.length ? (isDupe ? "warn" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
+        <td class="mono small">${escapeHtml(fillText)}</td>
+        <td class="muted small">${escapeHtml(notes)}</td>
+      </tr>
+    `);
+  }
+
+  wantedTable.innerHTML = rows.join("");
+
+  // Summary pills: Filled / Missing / Duplicates / Roster pilots
+  const dupeCount = dupes.length;
+  summaryPills.innerHTML = `
+    <span class="pill ok">Filled: ${filledCount}</span>
+    <span class="pill bad">Missing: ${missingCount}</span>
+    <span class="pill warn">Duplicates: ${dupeCount}</span>
+    <span class="pill warn">Roster pilots: ${Object.keys(state.roster).length}</span>
+  `;
+
+  // Need message with (Info)/(Skirm)/(Mining) prefixes where applicable
+  if (missing.length) {
+    const parts = missing.map(c => `${needPrefixForCharge(c)}${c}`.trim());
+    needMsg.textContent = `Need charges: ${parts.join(" | ")}`;
+  } else {
+    needMsg.textContent = `Need charges: — (all requested charges are filled)`;
+  }
+
+  // Filled charges message WITH prefix
+  if (filled.length) {
+    const lines = [];
+    for (const w of filled) {
+      const providers = (idx.get(normalizeName(w)) || []).map(f => {
+        const ship = f.ship ? ` (${f.ship})` : "";
+        const ml = f.mindlink ? " +ML" : "";
+        return `${f.pilot}${ship}${ml}`.trim();
+      });
+      const uniq = [...new Set(providers)];
+      lines.push(`${w}: ${uniq.join(", ")}`);
+    }
+    filledMsg.textContent = `Filled charges:\n` + lines.join("\n");
+  } else {
+    filledMsg.textContent = `Filled charges:\n— (none detected on roster yet)`;
+  }
+
+  // Duplicate charges message WITH prefix
+  if (dupes.length) {
+    dupeMsg.textContent =
+      `Duplicate charges:\n` +
+      dupes.map(d => `${d.charge}: ${[...new Set(d.providers)].join(", ")}`).join("\n");
+  } else {
+    dupeMsg.textContent = `Duplicate charges:\n—`;
+  }
+}
+
+function renderAll(reason="") {
+  saveState(state);
+  renderRosterTable();
+  renderWantedComparison();
+  lastUpdate.textContent = nowStamp();
+  statusText.textContent = reason ? `✓ ${reason}` : "";
+  if (reason) setTimeout(() => { statusText.textContent = ""; }, 1600);
+}
+
+/** -----------------------------
+ * Events
+ * ----------------------------- */
+applyBtn.onclick = () => {
+  const updates = parsePastedText(chatInput.value);
+  if (!updates.length) {
+    renderAll("No boost links found in paste");
+    return;
+  }
+  const { added, updated } = upsertRoster(updates);
+  renderAll(`Applied (${added} added, ${updated} updated)`);
+};
+
+clearPasteBtn.onclick = () => {
+  chatInput.value = "";
+  renderAll("Paste cleared");
+};
+
+clearRosterBtn.onclick = () => clearRoster();
+
+loadArmorPvpBtn.onclick = () => { wantedInput.value = armorPvpWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Armor PvP set"); };
+loadShieldPvpBtn.onclick = () => { wantedInput.value = shieldPvpWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Shield PvP set"); };
+loadMiningBtn.onclick = () => { wantedInput.value = miningWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Mining set"); };
+clearWantedBtn.onclick = () => { wantedInput.value = ""; state.wantedText = ""; renderAll("Cleared wanted"); };
+
+// auto-save wanted edits
+let wantedTimer = null;
+wantedInput.addEventListener("input", () => {
+  clearTimeout(wantedTimer);
+  wantedTimer = setTimeout(() => {
+    state.wantedText = wantedInput.value;
+    saveState(state);
+    renderAll("Wanted updated");
+  }, 400);
+});
+
+// Copy buttons
+document.querySelectorAll("button[data-copy]").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const id = btn.getAttribute("data-copy");
+    const el = document.getElementById(id);
+    const text = el.textContent || "";
+    try {
+      await navigator.clipboard.writeText(text);
+      statusText.textContent = "✓ Copied to clipboard";
+      setTimeout(() => statusText.textContent = "", 1200);
+    } catch {
+      prompt("Copy this:", text);
+    }
+  });
+});
+
+/** -----------------------------
+ * Initial load
+ * ----------------------------- */
+wantedInput.value = state.wantedText || armorPvpWanted().join("\n");
+renderAll("Loaded");
+</script>
+</body>
+</html>
