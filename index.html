@@ -1004,7 +1004,7 @@ function renderWantedComparison() {
     const isDupe = fills.length > 1;
     if (isDupe) dupes.push({ charge: w, providers });
 
-    const fillText = providers.length ? providers.join("\n") : "—";
+    const fillText = providers.length ? providers.join(", ") : "—";
     const notes = !fills.length
       ? "Not on roster yet"
       : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
