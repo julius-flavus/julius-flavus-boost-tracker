@@ -18,6 +18,7 @@
     textarea { width: 100%; min-height: 240px; resize: vertical; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
     button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
     button:hover { background:#152233; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
     .btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
     .grid2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 740px){ .grid2 { grid-template-columns: 1fr; } }
@@ -27,9 +28,9 @@
     .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 4px; }
     .ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
     .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
-	.dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
-	.bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
-	.neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
+    .dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
+    .bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
+    .neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
     .small { font-size: 12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .hr { height: 1px; background:#1a2430; margin: 12px 0; }
@@ -42,6 +43,41 @@
     /* Mindlink toggle */
     .mlwrap { display:flex; align-items:center; gap:8px; }
     .mlwrap input[type="checkbox"]{ transform: translateY(1px); }
+
+    /* NEW: profile chooser + warning */
+    .profileCard { border-color:#314760; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
+    .profileTitle { display:flex; justify-content: space-between; align-items:center; gap:10px; }
+    .profileTitle b { font-size: 13px; letter-spacing:.2px; }
+    .profileChoices { display:flex; gap:10px; flex-wrap: wrap; margin-top:10px; }
+    .choiceBtn {
+      border: 1px solid #2a3a52;
+      background:#0f1822;
+      padding: 10px 12px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .choiceBtn .badge {
+      width: 10px; height:10px; border-radius: 999px; border:1px solid #2a3a52;
+      background: rgba(231,238,247,.10);
+      display:inline-block;
+    }
+    .choiceBtn.active {
+      border-color:#2f6b4f;
+      background: rgba(47,107,79,.12);
+    }
+    .choiceBtn.active .badge { border-color:#2f6b4f; background:#bff3d8; }
+    .profileWarn {
+      margin-top:10px;
+      border: 1px solid #7a5a2a;
+      background: rgba(122,90,42,.10);
+      color:#ffe2b5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      display:none;
+    }
+    .profileWarn strong { color:#ffe2b5; }
   </style>
 </head>
 
@@ -84,7 +120,35 @@
       </table>
     </div>
 
-    <div class="card">
+    <!-- UPDATED: Make profile selection obvious -->
+    <div class="card profileCard">
+      <div class="profileTitle">
+        <div>
+          <b>Step 1: Pick your boosts profile</b>
+          <div class="muted small">Armor / Shield / Mining — this fills the “Wanted charges” list for you.</div>
+        </div>
+        <span class="pill warn" id="profilePill">No profile selected</span>
+      </div>
+
+      <div class="profileChoices">
+        <button id="profileArmorBtn" class="choiceBtn" type="button" aria-pressed="false">
+          <span class="badge"></span><span><b>Armor</b> PvP</span>
+        </button>
+        <button id="profileShieldBtn" class="choiceBtn" type="button" aria-pressed="false">
+          <span class="badge"></span><span><b>Shield</b> PvP</span>
+        </button>
+        <button id="profileMiningBtn" class="choiceBtn" type="button" aria-pressed="false">
+          <span class="badge"></span><span><b>Mining</b></span>
+        </button>
+      </div>
+
+      <div class="profileWarn" id="profileWarn">
+        <strong>Heads up:</strong> You haven’t selected a profile yet.  
+        Pick <b>Armor</b>, <b>Shield</b>, or <b>Mining</b> so the tracker knows what charges you want.
+      </div>
+
+      <div class="hr"></div>
+
       <label>Wanted charges (one per line)</label>
       <textarea id="wantedInput" class="mono" style="min-height: 220px;"></textarea>
 
@@ -164,7 +228,7 @@
 
   <div style="margin-top:8px;">
     <b>Donations / feedback:</b> ISK donations are appreciated — send to
-    <b>Julius Flavus</b> in-game.  
+    <b>Julius Flavus</b> in-game.
     Comments or suggestions? EVEmail <b>Julius Flavus</b>.
   </div>
 
@@ -188,8 +252,18 @@ const STORAGE_KEY = "eveBoostTracker_roster_v3_julius";
 
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return { roster: {}, wantedText: armorPvpWanted().join("\n") };
-  try { return JSON.parse(raw); } catch { localStorage.removeItem(STORAGE_KEY); return loadState(); }
+  if (!raw) return { roster: {}, wantedText: "", selectedProfile: "" };
+  try {
+    const st = JSON.parse(raw);
+    return {
+      roster: st.roster || {},
+      wantedText: typeof st.wantedText === "string" ? st.wantedText : "",
+      selectedProfile: typeof st.selectedProfile === "string" ? st.selectedProfile : ""
+    };
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return loadState();
+  }
 }
 function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -539,6 +613,8 @@ Nidhoggur
 Nighthawk
 Nightmare
 Ninazu
+Nefantar Thrasher
+Ninazu
 Noctis
 Nomad
 Nyx
@@ -739,6 +815,13 @@ const needMsg = document.getElementById("needMsg");
 const filledMsg = document.getElementById("filledMsg");
 const dupeMsg = document.getElementById("dupeMsg");
 
+// NEW: profile UI
+const profilePill = document.getElementById("profilePill");
+const profileWarn = document.getElementById("profileWarn");
+const profileArmorBtn = document.getElementById("profileArmorBtn");
+const profileShieldBtn = document.getElementById("profileShieldBtn");
+const profileMiningBtn = document.getElementById("profileMiningBtn");
+
 /** -----------------------------
  * Helpers
  * ----------------------------- */
@@ -757,6 +840,9 @@ function nowStamp() {
 }
 function getWantedList() {
   return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+}
+function escapeRegExp(s){
+  return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /** -----------------------------
@@ -814,10 +900,6 @@ function detectShip(line) {
   return "";
 }
 
-function escapeRegExp(s){
-  return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function parseLineToRosterUpdate(line) {
   if (!line.includes("showinfo:")) return null;
   const pilot = parsePilot(line);
@@ -870,11 +952,8 @@ function upsertRoster(updates) {
       // Replace that pilot’s current posted boosts with latest paste
       existing.pilot = u.pilot;
       existing.ship = u.ship || existing.ship || "";
-      // Set mindlink from latest paste if present; otherwise keep current toggle state
-      // (so your manual toggle doesn't get wiped by a paste line without ML text)
+      // Keep manual toggle unless paste explicitly includes ML
       existing.mindlink = (typeof u.mindlink === "boolean" && u.mindlink) ? true : existing.mindlink;
-      // If you WANT "paste without ML clears ML", change the line above to:
-      // existing.mindlink = !!u.mindlink;
       existing.boosts = u.boosts;
       existing.updatedAt = Date.now();
       updated++;
@@ -904,6 +983,41 @@ function clearRoster() {
   state.roster = {};
   saveState(state);
   renderAll("Roster cleared");
+}
+
+/** -----------------------------
+ * Profile selection (NEW)
+ * ----------------------------- */
+function setProfile(profile) {
+  state.selectedProfile = profile; // "armor" | "shield" | "mining"
+  if (profile === "armor") wantedInput.value = armorPvpWanted().join("\n");
+  if (profile === "shield") wantedInput.value = shieldPvpWanted().join("\n");
+  if (profile === "mining") wantedInput.value = miningWanted().join("\n");
+  state.wantedText = wantedInput.value;
+  saveState(state);
+  renderAll(`Selected ${profile.charAt(0).toUpperCase()+profile.slice(1)} profile`);
+}
+
+function renderProfileUI() {
+  const p = state.selectedProfile || "";
+  const setBtn = (btn, active) => {
+    btn.classList.toggle("active", !!active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  };
+
+  setBtn(profileArmorBtn, p === "armor");
+  setBtn(profileShieldBtn, p === "shield");
+  setBtn(profileMiningBtn, p === "mining");
+
+  if (!p) {
+    profilePill.className = "pill warn";
+    profilePill.textContent = "No profile selected";
+    profileWarn.style.display = "block";
+  } else {
+    profilePill.className = "pill ok";
+    profilePill.textContent = `Profile: ${p.toUpperCase()}`;
+    profileWarn.style.display = "none";
+  }
 }
 
 /** -----------------------------
@@ -962,12 +1076,10 @@ function renderRosterTable() {
   }
   rosterTable.innerHTML = rows.join("");
 
-  // wire remove buttons
   rosterTable.querySelectorAll("button[data-remove]").forEach(btn => {
     btn.addEventListener("click", () => removePilot(btn.getAttribute("data-remove")));
   });
 
-  // wire mindlink toggles
   rosterTable.querySelectorAll("input[type='checkbox'][data-ml]").forEach(cb => {
     cb.addEventListener("change", () => toggleMindlink(cb.getAttribute("data-ml")));
   });
@@ -1020,7 +1132,6 @@ function renderWantedComparison() {
 
   wantedTable.innerHTML = rows.join("");
 
-  // Summary pills: Filled / Missing / Duplicates / Roster pilots
   const dupeCount = dupes.length;
   summaryPills.innerHTML = `
   <span class="pill ok">Filled: ${filledCount}</span>
@@ -1029,7 +1140,6 @@ function renderWantedComparison() {
   <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
   `;
 
-  // Need message with (Info)/(Skirm)/(Mining) prefixes where applicable
   if (missing.length) {
     const parts = missing.map(c => `${needPrefixForCharge(c)}${c}`.trim());
     needMsg.textContent = `Need charges: ${parts.join(" | ")}`;
@@ -1037,7 +1147,6 @@ function renderWantedComparison() {
     needMsg.textContent = `Need charges: — (all requested charges are filled)`;
   }
 
-  // Filled charges message WITH prefix
   if (filled.length) {
     const lines = [];
     for (const w of filled) {
@@ -1054,7 +1163,6 @@ function renderWantedComparison() {
     filledMsg.textContent = `Filled charges:\n— (none detected on roster yet)`;
   }
 
-  // Duplicate charges message WITH prefix
   if (dupes.length) {
     dupeMsg.textContent =
       `Duplicate charges:\n` +
@@ -1066,6 +1174,7 @@ function renderWantedComparison() {
 
 function renderAll(reason="") {
   saveState(state);
+  renderProfileUI();
   renderRosterTable();
   renderWantedComparison();
   lastUpdate.textContent = nowStamp();
@@ -1091,14 +1200,31 @@ clearPasteBtn.onclick = () => {
   renderAll("Paste cleared");
 };
 
-clearRosterBtn.onclick = () => clearRoster();
+clearRosterBtn.onclick = () => {
+  state.roster = {};
+  saveState(state);
+  renderAll("Roster cleared");
+};
 
-loadArmorPvpBtn.onclick = () => { wantedInput.value = armorPvpWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Armor PvP set"); };
-loadShieldPvpBtn.onclick = () => { wantedInput.value = shieldPvpWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Shield PvP set"); };
-loadMiningBtn.onclick = () => { wantedInput.value = miningWanted().join("\n"); state.wantedText = wantedInput.value; renderAll("Loaded Mining set"); };
-clearWantedBtn.onclick = () => { wantedInput.value = ""; state.wantedText = ""; renderAll("Cleared wanted"); };
+// Profile buttons (NEW)
+profileArmorBtn.onclick = () => setProfile("armor");
+profileShieldBtn.onclick = () => setProfile("shield");
+profileMiningBtn.onclick = () => setProfile("mining");
 
-// auto-save wanted edits
+// Existing set buttons still work (and also set profile now)
+loadArmorPvpBtn.onclick = () => setProfile("armor");
+loadShieldPvpBtn.onclick = () => setProfile("shield");
+loadMiningBtn.onclick = () => setProfile("mining");
+
+clearWantedBtn.onclick = () => {
+  wantedInput.value = "";
+  state.wantedText = "";
+  state.selectedProfile = "";
+  saveState(state);
+  renderAll("Cleared wanted (no profile selected)");
+};
+
+// auto-save wanted edits (but do NOT silently claim a profile)
 let wantedTimer = null;
 wantedInput.addEventListener("input", () => {
   clearTimeout(wantedTimer);
@@ -1128,7 +1254,9 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 /** -----------------------------
  * Initial load
  * ----------------------------- */
-wantedInput.value = state.wantedText || armorPvpWanted().join("\n");
+// If no profile selected yet, show warning and (optionally) start empty so they MUST pick.
+// If you'd rather default to Armor, set selectedProfile:"armor" in loadState().
+wantedInput.value = state.wantedText || "";
 renderAll("Loaded");
 </script>
 </body>
