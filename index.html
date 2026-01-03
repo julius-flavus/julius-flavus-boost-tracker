@@ -27,7 +27,8 @@
     .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 4px; }
     .ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
     .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
-    .bad { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
+	.dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
+	.bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
     .small { font-size: 12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .hr { height: 1px; background:#1a2430; margin: 12px 0; }
@@ -991,7 +992,7 @@ function renderWantedComparison() {
 
     rows.push(`
       <tr>
-        <td><span class="pill ${fills.length ? (isDupe ? "warn" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
+        <td><span class="pill ${fills.length ? (isDupe ? "dupe" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
         <td class="mono small">${escapeHtml(fillText)}</td>
         <td class="muted small">${escapeHtml(notes)}</td>
       </tr>
@@ -1005,7 +1006,7 @@ function renderWantedComparison() {
   summaryPills.innerHTML = `
     <span class="pill ok">Filled: ${filledCount}</span>
     <span class="pill bad">Missing: ${missingCount}</span>
-    <span class="pill warn">Duplicates: ${dupeCount}</span>
+    <span class="pill dupe">Duplicates: ${dupeCount}</span>
     <span class="pill warn">Roster pilots: ${Object.keys(state.roster).length}</span>
   `;
 
