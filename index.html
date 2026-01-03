@@ -29,6 +29,7 @@
     .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
 	.dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
 	.bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
+	.neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
     .small { font-size: 12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .hr { height: 1px; background:#1a2430; margin: 12px 0; }
@@ -1022,10 +1023,10 @@ function renderWantedComparison() {
   // Summary pills: Filled / Missing / Duplicates / Roster pilots
   const dupeCount = dupes.length;
   summaryPills.innerHTML = `
-    <span class="pill ok">Filled: ${filledCount}</span>
-    <span class="pill bad">Missing: ${missingCount}</span>
-    <span class="pill dupe">Duplicates: ${dupeCount}</span>
-    <span class="pill warn">Roster pilots: ${Object.keys(state.roster).length}</span>
+  <span class="pill ok">Filled: ${filledCount}</span>
+  <span class="pill bad">Missing: ${missingCount}</span>
+  <span class="pill dupe">Duplicates: ${dupeCount}</span>
+  <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
   `;
 
   // Need message with (Info)/(Skirm)/(Mining) prefixes where applicable
