@@ -44,7 +44,7 @@
     .mlwrap { display:flex; align-items:center; gap:8px; }
     .mlwrap input[type="checkbox"]{ transform: translateY(1px); }
 
-    /* NEW: profile chooser + warning */
+    /* profile chooser + warning */
     .profileCard { border-color:#314760; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
     .profileTitle { display:flex; justify-content: space-between; align-items:center; gap:10px; }
     .profileTitle b { font-size: 13px; letter-spacing:.2px; }
@@ -78,6 +78,18 @@
       display:none;
     }
     .profileWarn strong { color:#ffe2b5; }
+
+    /* NEW: category header rows in the wanted table */
+    .catrow td{
+      border-bottom: 1px solid #1a2430;
+      padding: 10px 6px 6px;
+      color:#9db0c6;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-size: 11px;
+      background: rgba(231,238,247,.04);
+    }
   </style>
 </head>
 
@@ -120,7 +132,7 @@
       </table>
     </div>
 
-    <!-- UPDATED: Make profile selection obvious -->
+    <!-- Profile selection -->
     <div class="card profileCard">
       <div class="profileTitle">
         <div>
@@ -223,7 +235,7 @@
 <div class="card foot">
   <b>How it works:</b> You paste chat. We parse
   <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code> links
-  (including weird <code>//</code> variants), update a
+  (including weird <code>//</code> variants and trailing <code>*</code>), update a
   <b>persistent roster</b>, then compare roster vs your “wanted” list.
 
   <div style="margin-top:8px;">
@@ -242,7 +254,6 @@
 </script>
 
 </div>
-
 
 <script>
 /** -----------------------------
@@ -314,9 +325,7 @@ function miningWanted() {
 }
 
 /** -----------------------------
- * Category helpers (for Need message prefixing)
- * - Per your request: don't bother prefixing Armor/Shield (obvious).
- * - Do prefix Information/Skirmish/Mining.
+ * Category helpers (for Need message prefixing + table grouping)
  * ----------------------------- */
 const INFO_CHARGES = new Set([
   "Electronic Hardening Charge",
@@ -339,12 +348,52 @@ const MINING_CHARGES = new Set([
   "Mining Laser Field Enhancement Charge"
 ].map(s => s.toLowerCase()));
 
+/* NEW: Armor / Shield sets so we can add headers in the mini-table */
+const ARMOR_CHARGES = new Set([
+  "Armor Reinforcement Charge",
+  "Armor Energizing Charge",
+  "Rapid Repair Charge"
+].map(s => s.toLowerCase()));
+
+const SHIELD_CHARGES = new Set([
+  "Shield Extension Charge",
+  "Shield Harmonizing Charge",
+  "Active Shielding Charge"
+].map(s => s.toLowerCase()));
+
 function needPrefixForCharge(chargeName){
   const n = (chargeName || "").trim().toLowerCase();
   if (INFO_CHARGES.has(n)) return "(Info) ";
   if (SKIRMISH_CHARGES.has(n)) return "(Skirm) ";
   if (MINING_CHARGES.has(n)) return "(Mining) ";
   return ""; // Armor/Shield (and anything else) => no prefix
+}
+
+function chatTagForCharge(chargeName){
+  const n = (chargeName || "").trim().toLowerCase();
+  if (SHIELD_CHARGES.has(n)) return "[Shield]";
+  if (ARMOR_CHARGES.has(n)) return "[Armor]";
+  if (SKIRMISH_CHARGES.has(n)) return "[Skirm]";
+  if (INFO_CHARGES.has(n)) return "[Info]";
+  if (MINING_CHARGES.has(n)) return "[Mining]";
+  return "[Other]";
+}
+
+function formatProviders(providers){
+  // de-dupe and keep it compact
+  const uniq = [...new Set(providers)].filter(Boolean);
+  return uniq.join(", ");
+}
+
+/* NEW: category mapper for wanted-table header rows */
+function chargeCategory(chargeName){
+  const n = (chargeName || "").trim().toLowerCase();
+  if (SHIELD_CHARGES.has(n)) return "shield";
+  if (ARMOR_CHARGES.has(n)) return "armor";
+  if (SKIRMISH_CHARGES.has(n)) return "skirmish";
+  if (INFO_CHARGES.has(n)) return "information";
+  if (MINING_CHARGES.has(n)) return "mining";
+  return "other";
 }
 
 /** -----------------------------
@@ -779,14 +828,12 @@ Zirnitra`;
 
 const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-// normalize for matching
 function normShip(s){
   return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 }
 const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) }))
   .sort((a,b) => b.norm.length - a.norm.length);
 
-// common typo aliases (add more if you want)
 const SHIP_ALIASES = new Map([
   ["damntion", "Damnation"]
 ]);
@@ -815,7 +862,6 @@ const needMsg = document.getElementById("needMsg");
 const filledMsg = document.getElementById("filledMsg");
 const dupeMsg = document.getElementById("dupeMsg");
 
-// NEW: profile UI
 const profilePill = document.getElementById("profilePill");
 const profileWarn = document.getElementById("profileWarn");
 const profileArmorBtn = document.getElementById("profileArmorBtn");
@@ -845,35 +891,25 @@ function escapeRegExp(s){
   return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * NEW: Normalize charge names so "Charge*" matches "Charge"
- * - Strips trailing asterisks and surrounding whitespace
- * - Collapses internal whitespace
- */
+/* Normalize charge names so "Charge*" == "Charge" */
 function normalizeChargeName(s){
   return (s || "")
-    .replace(/\s*\*+\s*$/g, "")     // remove trailing * (one or more)
-    .replace(/\s+/g, " ")          // collapse whitespace
+    .replace(/\s*\*+\s*$/g, "")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
 /** -----------------------------
  * Parsing logic
  * ----------------------------- */
-/**
- * Supports:
- * <url=showinfo:42834>Armor Reinforcement Charge</url>
- * <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>
- */
 function extractLinks(line) {
   const out = [];
   const re = /<url=showinfo:[^>]*>(.*?)<\/url>/gi;
   for (const m of line.matchAll(re)) {
     const rawName = (m[1] || "").trim();
-    const name = normalizeChargeName(rawName); // NEW: strip trailing *
+    const name = normalizeChargeName(rawName);
     if (name) out.push(name);
   }
-  // De-dupe within the same line
   return [...new Set(out)];
 }
 
@@ -883,12 +919,10 @@ function parsePilot(line) {
 }
 
 function detectMindlink(line) {
-  // Consider ML indicators anywhere (before or after links)
   return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line);
 }
 
 function detectShip(line) {
-  // Remove url tags to make matching easier
   const stripped = line
     .replace(/<url=showinfo:[^>]*>/gi, " ")
     .replace(/<\/url>/gi, " ")
@@ -898,12 +932,10 @@ function detectShip(line) {
 
   const ns = normShip(stripped);
 
-  // alias check for obvious typos
   for (const token of ns.split(" ")) {
     if (SHIP_ALIASES.has(token)) return SHIP_ALIASES.get(token);
   }
 
-  // substring match against normalized ship names (longest first)
   for (const s of SHIP_NORMS) {
     if (!s.norm) continue;
     const pat = new RegExp(`(^|\\s)${escapeRegExp(s.norm)}(\\s|$)`, "i");
@@ -951,8 +983,6 @@ function upsertRoster(updates) {
     if (!key) continue;
 
     const existing = state.roster[key];
-
-    // Ensure boosts are normalized in storage too (extra safety)
     const cleanedBoosts = (u.boosts || []).map(normalizeChargeName).filter(Boolean);
 
     if (!existing) {
@@ -965,10 +995,8 @@ function upsertRoster(updates) {
       };
       added++;
     } else {
-      // Replace that pilot’s current posted boosts with latest paste
       existing.pilot = u.pilot;
       existing.ship = u.ship || existing.ship || "";
-      // Keep manual toggle unless paste explicitly includes ML
       existing.mindlink = (typeof u.mindlink === "boolean" && u.mindlink) ? true : existing.mindlink;
       existing.boosts = cleanedBoosts;
       existing.updatedAt = Date.now();
@@ -995,14 +1023,8 @@ function toggleMindlink(pilotKey) {
   renderAll(`Mindlink ${r.mindlink ? "enabled" : "disabled"} for ${r.pilot}`);
 }
 
-function clearRoster() {
-  state.roster = {};
-  saveState(state);
-  renderAll("Roster cleared");
-}
-
 /** -----------------------------
- * Profile selection (NEW)
+ * Profile selection
  * ----------------------------- */
 function setProfile(profile) {
   state.selectedProfile = profile; // "armor" | "shield" | "mining"
@@ -1040,7 +1062,6 @@ function renderProfileUI() {
  * Index roster by boost
  * ----------------------------- */
 function buildRosterBoostIndex() {
-  // boostNorm -> array of {pilot, ship, mindlink}
   const idx = new Map();
 
   for (const key of Object.keys(state.roster)) {
@@ -1050,7 +1071,7 @@ function buildRosterBoostIndex() {
     const mindlink = !!r.mindlink;
 
     for (const b of (r.boosts || [])) {
-      const bn = normalizeName(normalizeChargeName(b)); // NEW: normalize + strip *
+      const bn = normalizeName(normalizeChargeName(b));
       if (!bn) continue;
       if (!idx.has(bn)) idx.set(bn, []);
       idx.get(bn).push({ pilot, ship, mindlink, boostName: b });
@@ -1102,7 +1123,6 @@ function renderRosterTable() {
 }
 
 function renderWantedComparison() {
-  // NEW: also normalize wanted list so if YOU type "Charge*" it still matches
   const wanted = getWantedList().map(normalizeChargeName);
   const idx = buildRosterBoostIndex();
 
@@ -1112,82 +1132,126 @@ function renderWantedComparison() {
 
   const missing = [];
   const filled = [];
-  const dupes = []; // {charge, providers[]}
+  const dupes = [];
 
-  const rows = [];
+  // Group wanted charges by category (for header rows)
+  const groups = {
+    shield: [],
+    armor: [],
+    skirmish: [],
+    information: [],
+    mining: [],
+    other: []
+  };
+
   for (const wRaw of wanted) {
     const w = normalizeChargeName(wRaw);
-    const key = normalizeName(w);
-    const fills = idx.get(key) || [];
+    const cat = chargeCategory(w);
+    (groups[cat] || groups.other).push(w);
+  }
 
-    if (fills.length) filledCount++; else missingCount++;
+  const labelFor = {
+    shield: "Shield",
+    armor: "Armor",
+    skirmish: "Skirmish",
+    information: "Information",
+    mining: "Mining",
+    other: "Other"
+  };
 
-    if (!fills.length) missing.push(w);
-    else filled.push(w);
+  // You asked for Shield/Armor/Skirmish/Information. Mining is included if present.
+  const order = ["shield", "armor", "skirmish", "information", "mining", "other"];
 
-    const providers = fills.map(f => {
-      const ship = f.ship ? ` (${f.ship})` : "";
-      const ml = f.mindlink ? " +ML" : "";
-      return `${f.pilot}${ship}${ml}`.trim();
-    });
+  const rows = [];
 
-    const isDupe = fills.length > 1;
-    if (isDupe) dupes.push({ charge: w, providers });
-
-    const fillText = providers.length ? providers.join(", ") : "—";
-    const notes = !fills.length
-      ? "Not on roster yet"
-      : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
+  for (const cat of order) {
+    if (!groups[cat].length) continue;
 
     rows.push(`
-      <tr>
-        <td><span class="pill ${fills.length ? (isDupe ? "dupe" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
-        <td class="mono small">${escapeHtml(fillText)}</td>
-        <td class="muted small">${escapeHtml(notes)}</td>
+      <tr class="catrow">
+        <td colspan="3">${labelFor[cat]}</td>
       </tr>
     `);
+
+    for (const w of groups[cat]) {
+      const key = normalizeName(w);
+      const fills = idx.get(key) || [];
+
+      if (fills.length) filledCount++; else missingCount++;
+
+      if (!fills.length) missing.push(w);
+      else filled.push(w);
+
+      const providers = fills.map(f => {
+        const ship = f.ship ? ` (${f.ship})` : "";
+        const ml = f.mindlink ? " +ML" : "";
+        return `${f.pilot}${ship}${ml}`.trim();
+      });
+
+      const isDupe = fills.length > 1;
+      if (isDupe) dupes.push({ charge: w, providers });
+
+      const fillText = providers.length ? providers.join(", ") : "—";
+      const notes = !fills.length
+        ? "Not on roster yet"
+        : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
+
+      rows.push(`
+        <tr>
+          <td><span class="pill ${fills.length ? (isDupe ? "dupe" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
+          <td class="mono small">${escapeHtml(fillText)}</td>
+          <td class="muted small">${escapeHtml(notes)}</td>
+        </tr>
+      `);
+    }
   }
 
   wantedTable.innerHTML = rows.join("");
 
   const dupeCount = dupes.length;
   summaryPills.innerHTML = `
-  <span class="pill ok">Filled: ${filledCount}</span>
-  <span class="pill bad">Missing: ${missingCount}</span>
-  <span class="pill dupe">Duplicates: ${dupeCount}</span>
-  <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
+    <span class="pill ok">Filled: ${filledCount}</span>
+    <span class="pill bad">Missing: ${missingCount}</span>
+    <span class="pill dupe">Duplicates: ${dupeCount}</span>
+    <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
   `;
 
-  if (missing.length) {
-    const parts = missing.map(c => `${needPrefixForCharge(c)}${c}`.trim());
-    needMsg.textContent = `Need charges: ${parts.join(" | ")}`;
-  } else {
-    needMsg.textContent = `Need charges: — (all requested charges are filled)`;
-  }
+  // Need message
+if (missing.length) {
+  const lines = missing
+    .slice() // keep order
+    .map(c => `${chatTagForCharge(c)} ${c}`);
+  needMsg.textContent = `NEED CHARGES\n` + lines.join("\n");
+} else {
+  needMsg.textContent = `NEED CHARGES\n— all requested charges are filled —`;
+}
 
-  if (filled.length) {
-    const lines = [];
-    for (const w of filled) {
-      const providers = (idx.get(normalizeName(w)) || []).map(f => {
-        const ship = f.ship ? ` (${f.ship})` : "";
-        const ml = f.mindlink ? " +ML" : "";
-        return `${f.pilot}${ship}${ml}`.trim();
-      });
-      const uniq = [...new Set(providers)];
-      lines.push(`${w}: ${uniq.join(", ")}`);
-    }
-    filledMsg.textContent = `Filled charges:\n` + lines.join("\n");
-  } else {
-    filledMsg.textContent = `Filled charges:\n— (none detected on roster yet)`;
-  }
+  // Filled message
+if (filled.length) {
+  const lines = [];
+  for (const w of filled) {
+    const providers = (idx.get(normalizeName(w)) || []).map(f => {
+      const ship = f.ship ? ` (${f.ship})` : "";
+      const ml = f.mindlink ? " +ML" : "";
+      return `${f.pilot}${ship}${ml}`.trim();
+    });
 
-  if (dupes.length) {
-    dupeMsg.textContent =
-      `Duplicate charges:\n` +
-      dupes.map(d => `${d.charge}: ${[...new Set(d.providers)].join(", ")}`).join("\n");
-  } else {
-    dupeMsg.textContent = `Duplicate charges:\n—`;
+    lines.push(`${chatTagForCharge(w)} ${w} — ${formatProviders(providers)}`);
   }
+  filledMsg.textContent = `FILLED CHARGES\n` + lines.join("\n");
+} else {
+  filledMsg.textContent = `FILLED CHARGES\n— none detected on roster yet —`;
+}
+
+  // Dupe message
+if (dupes.length) {
+  dupeMsg.textContent =
+    `DUPLICATES\n` +
+    dupes.map(d => `${chatTagForCharge(d.charge)} ${d.charge} — ${formatProviders(d.providers)}`).join("\n");
+} else {
+  dupeMsg.textContent = `DUPLICATES\n—`;
+}
+
 }
 
 function renderAll(reason="") {
@@ -1224,7 +1288,7 @@ clearRosterBtn.onclick = () => {
   renderAll("Roster cleared");
 };
 
-// Profile buttons (NEW)
+// Profile buttons
 profileArmorBtn.onclick = () => setProfile("armor");
 profileShieldBtn.onclick = () => setProfile("shield");
 profileMiningBtn.onclick = () => setProfile("mining");
