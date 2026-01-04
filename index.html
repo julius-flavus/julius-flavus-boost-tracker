@@ -143,7 +143,7 @@
       </div>
 
       <div class="profileWarn" id="profileWarn">
-        <strong>Heads up:</strong> You haven’t selected a profile yet.  
+        <strong>Heads up:</strong> You haven’t selected a profile yet.
         Pick <b>Armor</b>, <b>Shield</b>, or <b>Mining</b> so the tracker knows what charges you want.
       </div>
 
@@ -845,6 +845,18 @@ function escapeRegExp(s){
   return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * NEW: Normalize charge names so "Charge*" matches "Charge"
+ * - Strips trailing asterisks and surrounding whitespace
+ * - Collapses internal whitespace
+ */
+function normalizeChargeName(s){
+  return (s || "")
+    .replace(/\s*\*+\s*$/g, "")     // remove trailing * (one or more)
+    .replace(/\s+/g, " ")          // collapse whitespace
+    .trim();
+}
+
 /** -----------------------------
  * Parsing logic
  * ----------------------------- */
@@ -857,7 +869,8 @@ function extractLinks(line) {
   const out = [];
   const re = /<url=showinfo:[^>]*>(.*?)<\/url>/gi;
   for (const m of line.matchAll(re)) {
-    const name = (m[1] || "").trim();
+    const rawName = (m[1] || "").trim();
+    const name = normalizeChargeName(rawName); // NEW: strip trailing *
     if (name) out.push(name);
   }
   // De-dupe within the same line
@@ -939,12 +952,15 @@ function upsertRoster(updates) {
 
     const existing = state.roster[key];
 
+    // Ensure boosts are normalized in storage too (extra safety)
+    const cleanedBoosts = (u.boosts || []).map(normalizeChargeName).filter(Boolean);
+
     if (!existing) {
       state.roster[key] = {
         pilot: u.pilot,
         ship: u.ship || "",
         mindlink: !!u.mindlink,
-        boosts: u.boosts,
+        boosts: cleanedBoosts,
         updatedAt: Date.now()
       };
       added++;
@@ -954,7 +970,7 @@ function upsertRoster(updates) {
       existing.ship = u.ship || existing.ship || "";
       // Keep manual toggle unless paste explicitly includes ML
       existing.mindlink = (typeof u.mindlink === "boolean" && u.mindlink) ? true : existing.mindlink;
-      existing.boosts = u.boosts;
+      existing.boosts = cleanedBoosts;
       existing.updatedAt = Date.now();
       updated++;
     }
@@ -1034,7 +1050,7 @@ function buildRosterBoostIndex() {
     const mindlink = !!r.mindlink;
 
     for (const b of (r.boosts || [])) {
-      const bn = normalizeName(b);
+      const bn = normalizeName(normalizeChargeName(b)); // NEW: normalize + strip *
       if (!bn) continue;
       if (!idx.has(bn)) idx.set(bn, []);
       idx.get(bn).push({ pilot, ship, mindlink, boostName: b });
@@ -1086,7 +1102,8 @@ function renderRosterTable() {
 }
 
 function renderWantedComparison() {
-  const wanted = getWantedList();
+  // NEW: also normalize wanted list so if YOU type "Charge*" it still matches
+  const wanted = getWantedList().map(normalizeChargeName);
   const idx = buildRosterBoostIndex();
 
   let filledCount = 0, missingCount = 0;
@@ -1098,7 +1115,8 @@ function renderWantedComparison() {
   const dupes = []; // {charge, providers[]}
 
   const rows = [];
-  for (const w of wanted) {
+  for (const wRaw of wanted) {
+    const w = normalizeChargeName(wRaw);
     const key = normalizeName(w);
     const fills = idx.get(key) || [];
 
@@ -1254,8 +1272,6 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 /** -----------------------------
  * Initial load
  * ----------------------------- */
-// If no profile selected yet, show warning and (optionally) start empty so they MUST pick.
-// If you'd rather default to Armor, set selectedProfile:"armor" in loadState().
 wantedInput.value = state.wantedText || "";
 renderAll("Loaded");
 </script>
