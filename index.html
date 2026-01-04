@@ -19,6 +19,16 @@
     button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
     button:hover { background:#152233; }
     button:disabled { opacity:.55; cursor:not-allowed; }
+	/* Destructive action */
+.dangerbtn {
+  border-color: #6b2f2f;
+  color: #ffc7c7;
+  background: rgba(107,47,47,.18);
+}
+
+.dangerbtn:hover {
+  background: rgba(107,47,47,.35);
+}
     .btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
     .grid2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 740px){ .grid2 { grid-template-columns: 1fr; } }
@@ -111,7 +121,7 @@
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
         <button id="clearPasteBtn" class="ghostbtn">Clear paste</button>
-        <button id="clearRosterBtn" class="ghostbtn">Clear roster</button>
+        <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
         <span class="muted small" id="statusText"></span>
       </div>
 
