@@ -135,7 +135,8 @@
       <textarea id="chatInput" placeholder='Examples:
 [18:21:20] Julius Flavus > <url=showinfo:42834>Armor Reinforcement Charge</url>  <url=showinfo:42833>Rapid Repair Charge</url> Damnation ML
 [19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>
-[19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge'></textarea>
+[19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge
+[19:51:22] Someone > ES Charge / SO Charge (Damn) +ML'></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
@@ -630,6 +631,7 @@ Miasmos
 Miasmos Amastris Edition
 Miasmos Quafe Ultra Edition
 Miasmos Quafe Ultramarine Edition
+Miasmos Quafe Ultramarine Edition
 Mimir
 Minmatar Shuttle
 Minokawa
@@ -654,7 +656,6 @@ Nestor
 Nidhoggur
 Nighthawk
 Nightmare
-Ninazu
 Ninazu
 Noctis
 Nomad
@@ -831,7 +832,41 @@ function normalizeChargeName(s){ return (s || "").replace(/\s*\*+\s*$/g, "").rep
 
 function normShip(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
 const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) })).sort((a,b) => b.norm.length - a.norm.length);
-const SHIP_ALIASES = new Map([["damntion", "Damnation"]]);
+
+/**
+ * #8: Ship shorthand + bracket/paren friendliness
+ * - We normalize the whole line (non-alnum -> spaces) so [Damn] (Damn) Damnation(ML) all become tokens.
+ * - SHIP_ALIASES maps common shorthand tokens -> full ship names.
+ * - We scan tokens first (cheap), then do a full-name search fallback (your original behavior).
+ *
+ * Tip: If you want more aliases, add them here (LEFT side must be a single token after normalization).
+ */
+const SHIP_ALIASES = new Map(Object.entries({
+  // Damnation
+  "damntion": "Damnation",
+  "damn": "Damnation",
+  "dam": "Damnation",
+
+  // Nighthawk
+  "nhawk": "Nighthawk",
+  "nighthk": "Nighthawk",
+  "nighthwk": "Nighthawk",
+  "nh": "Nighthawk",          // if this ever causes false matches, delete this one
+
+  // Command ships / common boosters (optional, safe-ish)
+  "vult": "Vulture",
+  "vultr": "Vulture",
+  "clay": "Claymore",
+  "eos": "Eos",
+  "loki": "Loki",
+  "tengu": "Tengu",
+  "orca": "Orca",
+  "porp": "Porpoise",
+
+  // Fleet slang you might see (edit as you like)
+  "pally": "Paladin",
+  "pal": "Paladin"
+}));
 
 const chatInput = document.getElementById("chatInput");
 const wantedInput = document.getElementById("wantedInput");
@@ -895,37 +930,51 @@ function extractLinks(line) {
   return [...new Set(out)];
 }
 
-// UPDATED: supports multi-hop lines like:
+// Supports multi-hop lines like:
 // [19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge
 function parsePilot(line) {
   const parts = (line || "").split(" > ").map(p => p.trim()).filter(Boolean);
   if (parts.length < 2) return "";
-
-  // Pilot is the segment BEFORE the last chunk (charges chunk)
   const pilotPart = parts[parts.length - 2];
   return pilotPart.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/,"").trim();
 }
 
 function detectMindlink(line) { return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line); }
 
+/**
+ * UPDATED ship detection (adds shorthand + better "ship in parentheses/brackets" handling)
+ */
 function detectShip(line) {
-  const stripped = line
+  // Strip URL tags and timestamps, but KEEP bracket/paren content (normalization will handle it)
+  const stripped = (line || "")
     .replace(/<url=showinfo:[^>]*>/gi, " ")
     .replace(/<\/url>/gi, " ")
     .replace(/\[\d{2}:\d{2}:\d{2}\]/g, " ")
-    .replace(/^\s+/," ")
-    .replace(/\s+/g," ")
+    .replace(/\s+/g, " ")
     .trim();
 
-  const ns = normShip(stripped);
-  for (const token of ns.split(" ")) {
-    if (SHIP_ALIASES.has(token)) return SHIP_ALIASES.get(token);
+  const ns = normShip(stripped); // non-alnum -> spaces, lowercased
+  if (!ns) return "";
+
+  // 1) Token-based alias lookup (fast, catches "damn", "nhawk", "vult", etc.)
+  // We also try a "no vowels"-ish variant? Not needed yet—keep it simple.
+  const tokens = ns.split(" ").filter(Boolean);
+
+  // First, direct tokens
+  for (const t of tokens) {
+    if (SHIP_ALIASES.has(t)) return SHIP_ALIASES.get(t);
   }
+
+  // 1b) Also check for "ship:" patterns that normalize to ["ship", "<token>"]
+  // (Already covered by token scan above, but harmless.)
+
+  // 2) Full ship name match (original behavior) – catches real ship names present anywhere
   for (const s of SHIP_NORMS) {
     if (!s.norm) continue;
     const pat = new RegExp(`(^|\\s)${escapeRegExp(s.norm)}(\\s|$)`, "i");
     if (pat.test(ns)) return s.name;
   }
+
   return "";
 }
 
@@ -935,26 +984,21 @@ function extractPlainChargesFromTail(tailText) {
 
   const found = [];
   for (const charge of KNOWN_CHARGES) {
-    // KNOWN_CHARGES are lowercased; match against tail case-insensitively.
-    const pretty = charge; // already a string
-    const pat = new RegExp(`\\b${escapeRegExp(pretty)}\\b\\s*\\**`, "i"); // allow trailing *
-    if (pat.test(tail)) found.push(pretty);
+    const pat = new RegExp(`\\b${escapeRegExp(charge)}\\b\\s*\\**`, "i"); // allow trailing *
+    if (pat.test(tail)) found.push(charge);
   }
   return [...new Set(found)].map(normalizeChargeName);
 }
 
 function extractCharges(line) {
-  // Prefer showinfo links when present
   const linked = extractLinks(line);
   if (linked.length) return linked;
 
-  // Fallback: plain-text charges live in the last segment after the final " > "
   const parts = (line || "").split(" > ");
   const tail = parts.length ? parts[parts.length - 1] : line;
   return extractPlainChargesFromTail(tail);
 }
 
-// UPDATED: no longer requires "showinfo:" — supports plain text charges too
 function parseLineToRosterUpdate(line) {
   const pilot = parsePilot(line);
   if (!pilot) return null;
