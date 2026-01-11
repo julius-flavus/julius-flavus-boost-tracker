@@ -134,7 +134,8 @@
       <label>Paste boost chat lines (you can paste repeatedly; roster persists)</label>
       <textarea id="chatInput" placeholder='Examples:
 [18:21:20] Julius Flavus > <url=showinfo:42834>Armor Reinforcement Charge</url>  <url=showinfo:42833>Rapid Repair Charge</url> Damnation ML
-[19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>'></textarea>
+[19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>
+[19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge'></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
@@ -358,6 +359,15 @@ const SHIELD_CHARGES = new Set([
   "Shield Harmonizing Charge",
   "Active Shielding Charge"
 ].map(s => s.toLowerCase()));
+
+// Known charges for plain-text detection (fallback when no <url=showinfo:...> links exist)
+const KNOWN_CHARGES = Array.from(new Set([
+  ...ARMOR_CHARGES,
+  ...SHIELD_CHARGES,
+  ...SKIRMISH_CHARGES,
+  ...INFO_CHARGES,
+  ...MINING_CHARGES
+])).map(s => String(s));
 
 function chatTagForCharge(chargeName){
   const n = (chargeName || "").trim().toLowerCase();
@@ -645,6 +655,7 @@ Nidhoggur
 Nighthawk
 Nightmare
 Ninazu
+Ninazu
 Noctis
 Nomad
 Nyx
@@ -883,16 +894,26 @@ function extractLinks(line) {
   }
   return [...new Set(out)];
 }
+
+// UPDATED: supports multi-hop lines like:
+// [19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge
 function parsePilot(line) {
-  const m = line.match(/^\[\d{2}:\d{2}:\d{2}\]\s+(.+?)\s+>/);
-  return m ? m[1].trim() : "";
+  const parts = (line || "").split(" > ").map(p => p.trim()).filter(Boolean);
+  if (parts.length < 2) return "";
+
+  // Pilot is the segment BEFORE the last chunk (charges chunk)
+  const pilotPart = parts[parts.length - 2];
+  return pilotPart.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/,"").trim();
 }
+
 function detectMindlink(line) { return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line); }
+
 function detectShip(line) {
   const stripped = line
     .replace(/<url=showinfo:[^>]*>/gi, " ")
     .replace(/<\/url>/gi, " ")
-    .replace(/^\[\d{2}:\d{2}:\d{2}\]\s+/," ")
+    .replace(/\[\d{2}:\d{2}:\d{2}\]/g, " ")
+    .replace(/^\s+/," ")
     .replace(/\s+/g," ")
     .trim();
 
@@ -907,18 +928,49 @@ function detectShip(line) {
   }
   return "";
 }
+
+function extractPlainChargesFromTail(tailText) {
+  const tail = (tailText || "").replace(/\s+/g, " ").trim();
+  if (!tail) return [];
+
+  const found = [];
+  for (const charge of KNOWN_CHARGES) {
+    // KNOWN_CHARGES are lowercased; match against tail case-insensitively.
+    const pretty = charge; // already a string
+    const pat = new RegExp(`\\b${escapeRegExp(pretty)}\\b\\s*\\**`, "i"); // allow trailing *
+    if (pat.test(tail)) found.push(pretty);
+  }
+  return [...new Set(found)].map(normalizeChargeName);
+}
+
+function extractCharges(line) {
+  // Prefer showinfo links when present
+  const linked = extractLinks(line);
+  if (linked.length) return linked;
+
+  // Fallback: plain-text charges live in the last segment after the final " > "
+  const parts = (line || "").split(" > ");
+  const tail = parts.length ? parts[parts.length - 1] : line;
+  return extractPlainChargesFromTail(tail);
+}
+
+// UPDATED: no longer requires "showinfo:" — supports plain text charges too
 function parseLineToRosterUpdate(line) {
-  if (!line.includes("showinfo:")) return null;
   const pilot = parsePilot(line);
   if (!pilot) return null;
 
-  const boosts = extractLinks(line);
+  const boosts = extractCharges(line);
   if (!boosts.length) return null;
 
   return { pilot, boosts, ship: detectShip(line), mindlink: detectMindlink(line) };
 }
+
 function parsePastedText(text) {
-  return text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(parseLineToRosterUpdate).filter(Boolean);
+  return text.split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(parseLineToRosterUpdate)
+    .filter(Boolean);
 }
 
 /** -----------------------------
@@ -940,7 +992,7 @@ function upsertRoster(updates) {
       existing.pilot = u.pilot;
       existing.ship = u.ship || existing.ship || "";
       existing.mindlink = (u.mindlink ? true : existing.mindlink);
-      existing.boosts = cleanedBoosts;
+      existing.boosts = cleanedBoosts; // latest paste wins
       existing.updatedAt = Date.now();
       updated++;
     }
@@ -948,11 +1000,13 @@ function upsertRoster(updates) {
   saveState(state);
   return { added, updated };
 }
+
 function removePilot(pilotKey) {
   delete state.roster[pilotKey];
   saveState(state);
   renderAll("Removed pilot");
 }
+
 function toggleMindlink(pilotKey) {
   const r = state.roster[pilotKey];
   if (!r) return;
@@ -974,6 +1028,7 @@ function setProfile(profile) {
   saveState(state);
   renderAll(`Selected ${profile.toUpperCase()} profile`);
 }
+
 function renderProfileUI() {
   const p = state.selectedProfile || "";
   const setBtn = (btn, active) => {
@@ -1149,7 +1204,7 @@ function blinkAndClearPaste(delayMs = 180){
  * ----------------------------- */
 applyBtn.onclick = () => {
   const updates = parsePastedText(chatInput.value);
-  if (!updates.length) { renderAll("No boost links found in paste"); return; }
+  if (!updates.length) { renderAll("No charges found in paste"); return; }
   const { added, updated } = upsertRoster(updates);
   renderAll(`Applied (${added} added, ${updated} updated)`);
   blinkAndClearPaste(180);
