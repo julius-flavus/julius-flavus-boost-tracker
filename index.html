@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,18 +20,12 @@
     button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
     button:hover { background:#152233; }
     button:disabled { opacity:.55; cursor:not-allowed; }
-	/* Destructive action */
-.dangerbtn {
-  border-color: #6b2f2f;
-  color: #ffc7c7;
-  background: rgba(107,47,47,.18);
-}
 
-.dangerbtn:hover {
-  background: rgba(107,47,47,.35);
-}
+    /* Destructive action */
+    .dangerbtn { border-color: #6b2f2f; color: #ffc7c7; background: rgba(107,47,47,.18); }
+    .dangerbtn:hover { background: rgba(107,47,47,.35); }
+
     .btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
-    .grid2 { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 740px){ .grid2 { grid-template-columns: 1fr; } }
     table { width:100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #1a2430; padding: 8px 6px; font-size: 13px; vertical-align: top; }
@@ -73,10 +68,7 @@
       background: rgba(231,238,247,.10);
       display:inline-block;
     }
-    .choiceBtn.active {
-      border-color:#2f6b4f;
-      background: rgba(47,107,79,.12);
-    }
+    .choiceBtn.active { border-color:#2f6b4f; background: rgba(47,107,79,.12); }
     .choiceBtn.active .badge { border-color:#2f6b4f; background:#bff3d8; }
     .profileWarn {
       margin-top:10px;
@@ -89,7 +81,7 @@
     }
     .profileWarn strong { color:#ffe2b5; }
 
-    /* NEW: category header rows in the wanted table */
+    /* category header rows in the wanted table */
     .catrow td{
       border-bottom: 1px solid #1a2430;
       padding: 10px 6px 6px;
@@ -100,6 +92,35 @@
       font-size: 11px;
       background: rgba(231,238,247,.04);
     }
+
+    /* editable ship input */
+    .shipEdit{
+      width: 100%;
+      max-width: 240px;
+      border-radius: 10px;
+      border: 1px solid #233043;
+      padding: 6px 8px;
+      color: #e7eef7;
+      background:#0b1118;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.2;
+      outline: none;
+    }
+    .shipEdit:focus{
+      border-color:#2a3a52;
+      box-shadow: 0 0 0 3px rgba(43,91,215,.18);
+    }
+
+    /* paste clear blink animation */
+    @keyframes pasteBlink {
+      0%   { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
+      25%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
+      50%  { box-shadow: 0 0 0 2px rgba(43,91,215,.0);  filter:none; }
+      75%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
+      100% { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
+    }
+    .blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
   </style>
 </head>
 
@@ -117,17 +138,16 @@
 [18:21:20] Julius Flavus > <url=showinfo:42834>Armor Reinforcement Charge</url>  <url=showinfo:42833>Rapid Repair Charge</url> Damnation ML
 [19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>'></textarea>
 
-      <!-- Buttons BELOW paste box -->
+      <!-- Buttons BELOW paste box (Clear paste removed) -->
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
-        <button id="clearPasteBtn" class="ghostbtn">Clear paste</button>
         <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
         <span class="muted small" id="statusText"></span>
       </div>
 
       <div class="hr"></div>
 
-      <div class="muted small">Current roster (remove people who leave/die; toggle ML if needed)</div>
+      <div class="muted small">Current roster (remove people who leave/die; toggle ML if needed; edit ship if it guessed wrong)</div>
       <table>
         <thead>
           <tr>
@@ -242,26 +262,26 @@
     </div>
   </div>
 
-<div class="card foot">
-  <b>How it works:</b> You paste chat. We parse
-  <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code> links
-  (including weird <code>//</code> variants and trailing <code>*</code>), update a
-  <b>persistent roster</b>, then compare roster vs your “wanted” list.
+  <div class="card foot">
+    <b>How it works:</b> You paste chat. We parse
+    <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code> links
+    (including weird <code>//</code> variants and trailing <code>*</code>), update a
+    <b>persistent roster</b>, then compare roster vs your “wanted” list.
 
-  <div style="margin-top:8px;">
-    <b>Donations / feedback:</b> ISK donations are appreciated — send to
-    <b>Julius Flavus</b> in-game.
-    Comments or suggestions? EVEmail <b>Julius Flavus</b>.
+    <div style="margin-top:8px;">
+      <b>Donations / feedback:</b> ISK donations are appreciated — send to
+      <b>Julius Flavus</b> in-game.
+      Comments or suggestions? EVEmail <b>Julius Flavus</b>.
+    </div>
+
+    <div style="margin-top:10px; font-size:11px; opacity:.85;">
+      © <span id="year"></span> Julius Flavus. All rights reserved.
+    </div>
   </div>
 
-  <div style="margin-top:10px; font-size:11px; opacity:.85;">
-    © <span id="year"></span> Julius Flavus. All rights reserved.
-  </div>
-</div>
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
 </div>
 
@@ -286,24 +306,19 @@ function loadState() {
     return loadState();
   }
 }
-function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
 /** -----------------------------
  * Charge sets (EVE Uni naming)
  * ----------------------------- */
 function armorPvpWanted() {
   return [
-    // Armor
     "Armor Reinforcement Charge",
     "Armor Energizing Charge",
     "Rapid Repair Charge",
-    // Information
     "Electronic Hardening Charge",
     "Electronic Superiority Charge",
     "Sensor Optimization Charge",
-    // Skirmish
     "Interdiction Maneuvers Charge",
     "Rapid Deployment Charge",
     "Evasive Maneuvers Charge"
@@ -311,15 +326,12 @@ function armorPvpWanted() {
 }
 function shieldPvpWanted() {
   return [
-    // Shield
     "Shield Extension Charge",
     "Shield Harmonizing Charge",
     "Active Shielding Charge",
-    // Information
     "Electronic Hardening Charge",
     "Electronic Superiority Charge",
     "Sensor Optimization Charge",
-    // Skirmish
     "Interdiction Maneuvers Charge",
     "Rapid Deployment Charge",
     "Evasive Maneuvers Charge"
@@ -327,7 +339,6 @@ function shieldPvpWanted() {
 }
 function miningWanted() {
   return [
-    // Mining
     "Mining Laser Optimization Charge",
     "Mining Equipment Preservation Charge",
     "Mining Laser Field Enhancement Charge"
@@ -335,7 +346,7 @@ function miningWanted() {
 }
 
 /** -----------------------------
- * Category helpers (for Need message prefixing + table grouping)
+ * Category helpers
  * ----------------------------- */
 const INFO_CHARGES = new Set([
   "Electronic Hardening Charge",
@@ -358,7 +369,6 @@ const MINING_CHARGES = new Set([
   "Mining Laser Field Enhancement Charge"
 ].map(s => s.toLowerCase()));
 
-/* NEW: Armor / Shield sets so we can add headers in the mini-table */
 const ARMOR_CHARGES = new Set([
   "Armor Reinforcement Charge",
   "Armor Energizing Charge",
@@ -371,14 +381,6 @@ const SHIELD_CHARGES = new Set([
   "Active Shielding Charge"
 ].map(s => s.toLowerCase()));
 
-function needPrefixForCharge(chargeName){
-  const n = (chargeName || "").trim().toLowerCase();
-  if (INFO_CHARGES.has(n)) return "(Info) ";
-  if (SKIRMISH_CHARGES.has(n)) return "(Skirm) ";
-  if (MINING_CHARGES.has(n)) return "(Mining) ";
-  return ""; // Armor/Shield (and anything else) => no prefix
-}
-
 function chatTagForCharge(chargeName){
   const n = (chargeName || "").trim().toLowerCase();
   if (SHIELD_CHARGES.has(n)) return "[Shield]";
@@ -388,14 +390,10 @@ function chatTagForCharge(chargeName){
   if (MINING_CHARGES.has(n)) return "[Mining]";
   return "[Other]";
 }
-
 function formatProviders(providers){
-  // de-dupe and keep it compact
   const uniq = [...new Set(providers)].filter(Boolean);
   return uniq.join(", ");
 }
-
-/* NEW: category mapper for wanted-table header rows */
 function chargeCategory(chargeName){
   const n = (chargeName || "").trim().toLowerCase();
   if (SHIELD_CHARGES.has(n)) return "shield";
@@ -407,7 +405,7 @@ function chargeCategory(chargeName){
 }
 
 /** -----------------------------
- * Ship list (provided by you)
+ * Ship list
  * ----------------------------- */
 const SHIPS_RAW = `Abaddon
 Absolution
@@ -838,15 +836,9 @@ Zirnitra`;
 
 const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-function normShip(s){
-  return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-}
-const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) }))
-  .sort((a,b) => b.norm.length - a.norm.length);
-
-const SHIP_ALIASES = new Map([
-  ["damntion", "Damnation"]
-]);
+function normShip(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
+const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) })).sort((a,b) => b.norm.length - a.norm.length);
+const SHIP_ALIASES = new Map([["damntion", "Damnation"]]);
 
 /** -----------------------------
  * UI elements
@@ -857,7 +849,6 @@ const statusText = document.getElementById("statusText");
 const rosterTable = document.getElementById("rosterTable");
 
 const applyBtn = document.getElementById("applyBtn");
-const clearPasteBtn = document.getElementById("clearPasteBtn");
 const clearRosterBtn = document.getElementById("clearRosterBtn");
 
 const loadArmorPvpBtn = document.getElementById("loadArmorPvpBtn");
@@ -886,27 +877,35 @@ function escapeHtml(str) {
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[s]));
 }
-function normalizeName(s) {
-  return (s || "").trim().replace(/\s+/g, " ").toLowerCase();
-}
+function normalizeName(s) { return (s || "").trim().replace(/\s+/g, " ").toLowerCase(); }
 function nowStamp() {
   const d = new Date();
   const pad = n => String(n).padStart(2,"0");
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
-function getWantedList() {
-  return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-}
-function escapeRegExp(s){
-  return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function getWantedList() { return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean); }
+function escapeRegExp(s){ return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+function normalizeChargeName(s){
+  return (s || "").replace(/\s*\*+\s*$/g, "").replace(/\s+/g, " ").trim();
 }
 
-/* Normalize charge names so "Charge*" == "Charge" */
-function normalizeChargeName(s){
-  return (s || "")
-    .replace(/\s*\*+\s*$/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+/** -----------------------------
+ * Ship datalist + editing
+ * ----------------------------- */
+function ensureShipDatalist(){
+  if (document.getElementById("shipDatalist")) return;
+  const dl = document.createElement("datalist");
+  dl.id = "shipDatalist";
+  dl.innerHTML = SHIP_LIST.map(s => `<option value="${escapeHtml(s)}"></option>`).join("");
+  document.body.appendChild(dl);
+}
+function setPilotShip(pilotKey, newShip){
+  const r = state.roster[pilotKey];
+  if (!r) return;
+  r.ship = (newShip || "").trim();
+  r.updatedAt = Date.now();
+  saveState(state);
+  renderAll(`Ship updated for ${r.pilot}`);
 }
 
 /** -----------------------------
@@ -922,16 +921,11 @@ function extractLinks(line) {
   }
   return [...new Set(out)];
 }
-
 function parsePilot(line) {
   const m = line.match(/^\[\d{2}:\d{2}:\d{2}\]\s+(.+?)\s+>/);
   return m ? m[1].trim() : "";
 }
-
-function detectMindlink(line) {
-  return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line);
-}
-
+function detectMindlink(line) { return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line); }
 function detectShip(line) {
   const stripped = line
     .replace(/<url=showinfo:[^>]*>/gi, " ")
@@ -945,16 +939,13 @@ function detectShip(line) {
   for (const token of ns.split(" ")) {
     if (SHIP_ALIASES.has(token)) return SHIP_ALIASES.get(token);
   }
-
   for (const s of SHIP_NORMS) {
     if (!s.norm) continue;
     const pat = new RegExp(`(^|\\s)${escapeRegExp(s.norm)}(\\s|$)`, "i");
     if (pat.test(ns)) return s.name;
   }
-
   return "";
 }
-
 function parseLineToRosterUpdate(line) {
   if (!line.includes("showinfo:")) return null;
   const pilot = parsePilot(line);
@@ -968,7 +959,6 @@ function parseLineToRosterUpdate(line) {
 
   return { pilot, boosts, ship, mindlink };
 }
-
 function parsePastedText(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const updates = [];
@@ -981,7 +971,6 @@ function parsePastedText(text) {
 
 /** -----------------------------
  * Roster model
- * roster[pilotNorm] = { pilot, ship, mindlink, boosts:[...], updatedAt }
  * ----------------------------- */
 let state = loadState();
 
@@ -1037,7 +1026,7 @@ function toggleMindlink(pilotKey) {
  * Profile selection
  * ----------------------------- */
 function setProfile(profile) {
-  state.selectedProfile = profile; // "armor" | "shield" | "mining"
+  state.selectedProfile = profile;
   if (profile === "armor") wantedInput.value = armorPvpWanted().join("\n");
   if (profile === "shield") wantedInput.value = shieldPvpWanted().join("\n");
   if (profile === "mining") wantedInput.value = miningWanted().join("\n");
@@ -1087,7 +1076,6 @@ function buildRosterBoostIndex() {
       idx.get(bn).push({ pilot, ship, mindlink, boostName: b });
     }
   }
-
   return idx;
 }
 
@@ -1095,6 +1083,8 @@ function buildRosterBoostIndex() {
  * Rendering
  * ----------------------------- */
 function renderRosterTable() {
+  ensureShipDatalist();
+
   const keys = Object.keys(state.roster)
     .sort((a,b) => (state.roster[b].updatedAt||0) - (state.roster[a].updatedAt||0));
 
@@ -1109,7 +1099,10 @@ function renderRosterTable() {
     rows.push(`
       <tr>
         <td>${escapeHtml(r.pilot || "?")}</td>
-        <td class="mono small">${escapeHtml(r.ship || "—")}</td>
+        <td>
+          <input class="shipEdit" list="shipDatalist" data-ship="${escapeHtml(k)}"
+            value="${escapeHtml(r.ship || "")}" placeholder="Type ship…" />
+        </td>
         <td>
           <div class="mlwrap">
             <input type="checkbox" data-ml="${escapeHtml(k)}" ${r.mindlink ? "checked" : ""}/>
@@ -1130,6 +1123,14 @@ function renderRosterTable() {
   rosterTable.querySelectorAll("input[type='checkbox'][data-ml]").forEach(cb => {
     cb.addEventListener("change", () => toggleMindlink(cb.getAttribute("data-ml")));
   });
+
+  rosterTable.querySelectorAll("input.shipEdit[data-ship]").forEach(inp => {
+    const key = inp.getAttribute("data-ship");
+    inp.addEventListener("blur", () => setPilotShip(key, inp.value));
+    inp.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); inp.blur(); }
+    });
+  });
 }
 
 function renderWantedComparison() {
@@ -1137,22 +1138,13 @@ function renderWantedComparison() {
   const idx = buildRosterBoostIndex();
 
   let filledCount = 0, missingCount = 0;
-
   wantedTable.innerHTML = "";
 
   const missing = [];
   const filled = [];
   const dupes = [];
 
-  // Group wanted charges by category (for header rows)
-  const groups = {
-    shield: [],
-    armor: [],
-    skirmish: [],
-    information: [],
-    mining: [],
-    other: []
-  };
+  const groups = { shield: [], armor: [], skirmish: [], information: [], mining: [], other: [] };
 
   for (const wRaw of wanted) {
     const w = normalizeChargeName(wRaw);
@@ -1160,28 +1152,14 @@ function renderWantedComparison() {
     (groups[cat] || groups.other).push(w);
   }
 
-  const labelFor = {
-    shield: "Shield",
-    armor: "Armor",
-    skirmish: "Skirmish",
-    information: "Information",
-    mining: "Mining",
-    other: "Other"
-  };
-
-  // You asked for Shield/Armor/Skirmish/Information. Mining is included if present.
+  const labelFor = { shield:"Shield", armor:"Armor", skirmish:"Skirmish", information:"Information", mining:"Mining", other:"Other" };
   const order = ["shield", "armor", "skirmish", "information", "mining", "other"];
-
   const rows = [];
 
   for (const cat of order) {
     if (!groups[cat].length) continue;
 
-    rows.push(`
-      <tr class="catrow">
-        <td colspan="3">${labelFor[cat]}</td>
-      </tr>
-    `);
+    rows.push(`<tr class="catrow"><td colspan="3">${labelFor[cat]}</td></tr>`);
 
     for (const w of groups[cat]) {
       const key = normalizeName(w);
@@ -1202,9 +1180,7 @@ function renderWantedComparison() {
       if (isDupe) dupes.push({ charge: w, providers });
 
       const fillText = providers.length ? providers.join(", ") : "—";
-      const notes = !fills.length
-        ? "Not on roster yet"
-        : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
+      const notes = !fills.length ? "Not on roster yet" : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`);
 
       rows.push(`
         <tr>
@@ -1218,50 +1194,39 @@ function renderWantedComparison() {
 
   wantedTable.innerHTML = rows.join("");
 
-  const dupeCount = dupes.length;
   summaryPills.innerHTML = `
     <span class="pill ok">Filled: ${filledCount}</span>
     <span class="pill bad">Missing: ${missingCount}</span>
-    <span class="pill dupe">Duplicates: ${dupeCount}</span>
+    <span class="pill dupe">Duplicates: ${dupes.length}</span>
     <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
   `;
 
-  // Need message
-if (missing.length) {
-  const lines = missing
-    .slice() // keep order
-    .map(c => `${chatTagForCharge(c)} ${c}`);
-  needMsg.textContent = `NEED CHARGES\n` + lines.join("\n");
-} else {
-  needMsg.textContent = `NEED CHARGES\n— all requested charges are filled —`;
-}
-
-  // Filled message
-if (filled.length) {
-  const lines = [];
-  for (const w of filled) {
-    const providers = (idx.get(normalizeName(w)) || []).map(f => {
-      const ship = f.ship ? ` (${f.ship})` : "";
-      const ml = f.mindlink ? " +ML" : "";
-      return `${f.pilot}${ship}${ml}`.trim();
-    });
-
-    lines.push(`${chatTagForCharge(w)} ${w} — ${formatProviders(providers)}`);
+  if (missing.length) {
+    needMsg.textContent = `NEED CHARGES\n` + missing.map(c => `${chatTagForCharge(c)} ${c}`).join("\n");
+  } else {
+    needMsg.textContent = `NEED CHARGES\n— all requested charges are filled —`;
   }
-  filledMsg.textContent = `FILLED CHARGES\n` + lines.join("\n");
-} else {
-  filledMsg.textContent = `FILLED CHARGES\n— none detected on roster yet —`;
-}
 
-  // Dupe message
-if (dupes.length) {
-  dupeMsg.textContent =
-    `DUPLICATES\n` +
-    dupes.map(d => `${chatTagForCharge(d.charge)} ${d.charge} — ${formatProviders(d.providers)}`).join("\n");
-} else {
-  dupeMsg.textContent = `DUPLICATES\n—`;
-}
+  if (filled.length) {
+    const lines = [];
+    for (const w of filled) {
+      const providers = (idx.get(normalizeName(w)) || []).map(f => {
+        const ship = f.ship ? ` (${f.ship})` : "";
+        const ml = f.mindlink ? " +ML" : "";
+        return `${f.pilot}${ship}${ml}`.trim();
+      });
+      lines.push(`${chatTagForCharge(w)} ${w} — ${formatProviders(providers)}`);
+    }
+    filledMsg.textContent = `FILLED CHARGES\n` + lines.join("\n");
+  } else {
+    filledMsg.textContent = `FILLED CHARGES\n— none detected on roster yet —`;
+  }
 
+  if (dupes.length) {
+    dupeMsg.textContent = `DUPLICATES\n` + dupes.map(d => `${chatTagForCharge(d.charge)} ${d.charge} — ${formatProviders(d.providers)}`).join("\n");
+  } else {
+    dupeMsg.textContent = `DUPLICATES\n—`;
+  }
 }
 
 function renderAll(reason="") {
@@ -1275,6 +1240,20 @@ function renderAll(reason="") {
 }
 
 /** -----------------------------
+ * Blink + delayed clear for paste box
+ * ----------------------------- */
+function blinkAndClearPaste(delayMs = 180){
+  chatInput.classList.remove("blinkClear");
+  void chatInput.offsetWidth;
+  chatInput.classList.add("blinkClear");
+
+  setTimeout(() => {
+    chatInput.value = "";
+    setTimeout(() => chatInput.classList.remove("blinkClear"), 520);
+  }, Math.max(0, delayMs));
+}
+
+/** -----------------------------
  * Events
  * ----------------------------- */
 applyBtn.onclick = () => {
@@ -1285,11 +1264,7 @@ applyBtn.onclick = () => {
   }
   const { added, updated } = upsertRoster(updates);
   renderAll(`Applied (${added} added, ${updated} updated)`);
-};
-
-clearPasteBtn.onclick = () => {
-  chatInput.value = "";
-  renderAll("Paste cleared");
+  blinkAndClearPaste(180);
 };
 
 clearRosterBtn.onclick = () => {
@@ -1298,12 +1273,10 @@ clearRosterBtn.onclick = () => {
   renderAll("Roster cleared");
 };
 
-// Profile buttons
 profileArmorBtn.onclick = () => setProfile("armor");
 profileShieldBtn.onclick = () => setProfile("shield");
 profileMiningBtn.onclick = () => setProfile("mining");
 
-// Existing set buttons still work (and also set profile now)
 loadArmorPvpBtn.onclick = () => setProfile("armor");
 loadShieldPvpBtn.onclick = () => setProfile("shield");
 loadMiningBtn.onclick = () => setProfile("mining");
@@ -1316,7 +1289,6 @@ clearWantedBtn.onclick = () => {
   renderAll("Cleared wanted (no profile selected)");
 };
 
-// auto-save wanted edits (but do NOT silently claim a profile)
 let wantedTimer = null;
 wantedInput.addEventListener("input", () => {
   clearTimeout(wantedTimer);
@@ -1327,7 +1299,6 @@ wantedInput.addEventListener("input", () => {
   }, 400);
 });
 
-// Copy buttons
 document.querySelectorAll("button[data-copy]").forEach(btn => {
   btn.addEventListener("click", async () => {
     const id = btn.getAttribute("data-copy");
@@ -1351,3 +1322,4 @@ renderAll("Loaded");
 </script>
 </body>
 </html>
+```
