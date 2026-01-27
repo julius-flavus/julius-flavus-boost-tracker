@@ -1502,7 +1502,6 @@ copyShareBtn?.addEventListener("click", async () => {
   }
 });
 
-
 /* =========================
    STARTUP (FIXED: SHARE WINS)
 ========================= */
@@ -1512,6 +1511,9 @@ copyShareBtn?.addEventListener("click", async () => {
   // Short share link wins
   if (/#p=/.test(window.location.hash || "")) {
     loaded = await tryLoadFromShortShare();
+    if (loaded) {
+      history.replaceState(null, "", window.location.pathname);
+    }
   }
   // Optional: keep support for the old long links too
   else if (typeof hasShareHash === "function" && hasShareHash()) {
@@ -1526,6 +1528,7 @@ copyShareBtn?.addEventListener("click", async () => {
     renderAll("Loaded from share link");
   }
 })();
+
 
 </script>
 </body>
