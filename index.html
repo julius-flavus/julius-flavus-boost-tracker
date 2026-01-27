@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+const SHARE_API_BASE = "https://boost-share.josh8587.workers.dev";
+
+
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Julius Flavus — EVE Boost Tracker (Roster + Paste)</title>
@@ -1315,6 +1318,36 @@ function blinkAndClearPaste(delayMs = 180){
 /* =========================
    SHARE LINK (URL HASH)
 ========================= */
+
+async function buildShareUrlShort() {
+  const payload = compressStateForShare();
+
+  const res = await fetch(`${SHARE_API_BASE}/share`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) throw new Error(`Share upload failed (${res.status})`);
+
+  const data = await res.json();
+  const base = window.location.origin + window.location.pathname;
+  return `${base}#p=${data.id}`;
+}
+
+async function tryLoadFromShortShare() {
+  const hash = window.location.hash || "";
+  const m = hash.match(/#p=([A-Za-z0-9]+)/);
+  if (!m) return false;
+
+  const res = await fetch(`${SHARE_API_BASE}/share/${m[1]}`);
+  if (!res.ok) return false;
+
+  const payload = await res.json();
+  return applySharedState(payload);
+}
+
+
 function compressStateForShare() {
   const slimRoster = {};
   for (const k of Object.keys(state.roster || {})) {
@@ -1452,36 +1485,49 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 });
 
 copyShareBtn?.addEventListener("click", async () => {
-  const url = buildShareUrl();
+  statusText.textContent = "Uploading…";
   try {
+    const url = await buildShareUrlShort();
     await navigator.clipboard.writeText(url);
-    statusText.textContent = "✓ Share URL copied";
+    statusText.textContent = "✓ Short share URL copied";
     setTimeout(() => statusText.textContent = "", 1200);
-  } catch {
-    prompt("Copy this share URL:", url);
+  } catch (e) {
+    console.error(e);
+    statusText.textContent = "✗ Share failed";
+    setTimeout(() => statusText.textContent = "", 1800);
+    // fallback prompt so you can still copy
+    try {
+      const url = await buildShareUrlShort();
+      prompt("Copy this share URL:", url);
+    } catch {}
   }
 });
+
 
 /* =========================
    STARTUP (FIXED: SHARE WINS)
 ========================= */
-(function startup(){
-  let loadedFromShare = false;
+(async function startup(){
+  let loaded = false;
 
-  // If share hash exists, load it FIRST (prevents localStorage overwrite)
-  if (hasShareHash()) {
-    loadedFromShare = tryLoadFromShareLink();
+  // Short share link wins
+  if (/#p=/.test(window.location.hash || "")) {
+    loaded = await tryLoadFromShortShare();
+  }
+  // Optional: keep support for the old long links too
+  else if (typeof hasShareHash === "function" && hasShareHash()) {
+    loaded = tryLoadFromShareLink();
   }
 
-  if (!loadedFromShare) {
+  if (!loaded) {
     state = loadState();
     wantedInput.value = state.wantedText || "";
     renderAll("Loaded");
   } else {
-    // state + wantedInput already set by applySharedState()
     renderAll("Loaded from share link");
   }
 })();
+
 </script>
 </body>
 </html>
