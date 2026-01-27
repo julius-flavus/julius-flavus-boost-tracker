@@ -24,12 +24,12 @@
     h1 { margin: 0; font-size: 16px; letter-spacing: .3px; }
 
     .subhead {
-      margin-top: 10px;
-      color:#9db0c6;
-      font-size: 12.5px;
-      line-height: 1.38;
-      max-width: 1000px;
-    }
+  margin-top: 10px;
+  color:#9db0c6;
+  font-size: 12.5px;
+  line-height: 1.45;
+  max-width: 900px;
+}
     .subhead b { color:#e7eef7; font-weight: 650; }
     .subhead code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color:#cfe0f6; }
 
@@ -40,7 +40,9 @@
     .card { background: #0e141c; border: 1px solid #1a2430; border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
     .muted { color: #9db0c6; }
     label { font-size: 12px; color: #9db0c6; display:block; margin-bottom: 6px; }
-    textarea { width: 100%; min-height: 240px; resize: vertical; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
+    textarea {
+  width: 100%;
+  min-height: 170px; resize: vertical; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
     button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
     button:hover { background:#152233; }
     button:disabled { opacity:.55; cursor:not-allowed; }
@@ -151,19 +153,16 @@
     <h1>Julius Flavus’ EVE Boost Tracker</h1>
 
     <div class="subhead">
-      Paste command burst “charges” from EVE chat and this tool will:
-      <b>build a persistent roster of who is boosting what</b>, then compare it against your
-      <b>Wanted charges</b> list so you can immediately see what’s <b>filled</b>, <b>missing</b>, or <b>duplicated</b>.
-      <br/>
-      It understands both EVE link format
-      <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code>
-      and plain-text lines, keeps your roster between pastes, and lets you
-      <b>remove pilots</b>, <b>toggle Mindlink</b>, and <b>edit ship names</b> if it guessed wrong.
-      <div>
-        <span class="pill neutral">Tip: Pick Armor / Shield / Mining to auto-fill the Wanted list.</span>
-        <span class="pill neutral">Tip: Add backups via “x2” (example: “Shield Extension Charge x2”).</span>
-        <span class="pill neutral">Share link exports roster + wanted + profile into the URL hash.</span>
-      </div>
+      Paste command burst charges from EVE chat to automatically build a live roster of
+<b>who is boosting what</b>. The tracker compares your fleet against the
+<b>Wanted charges</b> list so you can instantly see what’s <b>filled</b>, <b>missing</b>, or <b>duplicated</b>.
+
+<div style="margin-top:8px;">
+  <span class="pill neutral">Pick Armor / Shield / Mining to auto-fill Wanted</span>
+  <span class="pill neutral">Add backups using “x2” (example: Shield Extension Charge x2)</span>
+  <span class="pill neutral">Share link saves roster + wanted + profile</span>
+</div>
+
     </div>
   </div>
 </header>
@@ -237,9 +236,9 @@
         <button id="clearWantedBtn" class="ghostbtn">Clear wanted</button>
       </div>
 
-      <p class="foot" style="margin-top:10px;">
-        Uses <b>exact charge names</b> from EVE command burst ammo lists.
-      </p>
+      <p class="foot" style="margin-top:6px; font-size:11px; opacity:.65;">
+  Uses exact EVE command burst charge names.
+</p>
     </div>
   </div>
 
