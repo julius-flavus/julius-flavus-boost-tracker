@@ -7,11 +7,36 @@
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     body { margin: 0; background: #0b0f14; color: #e7eef7; }
-    header { padding: 16px 18px; border-bottom: 1px solid #1a2430; background: #0e141c; position: sticky; top: 0; z-index: 10;}
+
+    header {
+      border-bottom: 1px solid #1a2430;
+      background: #0e141c;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .headerInner{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 18px;
+    }
+
     h1 { margin: 0; font-size: 16px; letter-spacing: .3px; }
+
+    .subhead {
+      margin-top: 10px;
+      color:#9db0c6;
+      font-size: 12.5px;
+      line-height: 1.38;
+      max-width: 1000px;
+    }
+    .subhead b { color:#e7eef7; font-weight: 650; }
+    .subhead code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color:#cfe0f6; }
+
     .wrap { max-width: 1200px; margin: 0 auto; padding: 18px; display: grid; gap: 14px; }
     .row { display: grid; gap: 14px; grid-template-columns: 1.2fr .8fr; }
     @media (max-width: 980px){ .row { grid-template-columns: 1fr; } }
+
     .card { background: #0e141c; border: 1px solid #1a2430; border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
     .muted { color: #9db0c6; }
     label { font-size: 12px; color: #9db0c6; display:block; margin-bottom: 6px; }
@@ -20,7 +45,6 @@
     button:hover { background:#152233; }
     button:disabled { opacity:.55; cursor:not-allowed; }
 
-    /* Destructive action */
     .dangerbtn { border-color: #6b2f2f; color: #ffc7c7; background: rgba(107,47,47,.18); }
     .dangerbtn:hover { background: rgba(107,47,47,.35); }
 
@@ -28,26 +52,27 @@
     table { width:100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #1a2430; padding: 8px 6px; font-size: 13px; vertical-align: top; }
     th { text-align:left; color:#9db0c6; font-weight: 600; }
-    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 4px; }
+
+    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 6px; }
     .ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
     .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
     .dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
     .bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
     .neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
+
     .small { font-size: 12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .hr { height: 1px; background:#1a2430; margin: 12px 0; }
     .right { text-align:right; }
+
     .copybox { width:100%; min-height: 110px; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; white-space: pre-wrap; }
     .foot { color:#9db0c6; font-size: 12px; }
     .ghostbtn { background: transparent; border-color:#2a3a52; }
     .ghostbtn:hover { background:#101a25; }
 
-    /* Mindlink toggle */
     .mlwrap { display:flex; align-items:center; gap:8px; }
     .mlwrap input[type="checkbox"]{ transform: translateY(1px); }
 
-    /* profile chooser + warning */
     .profileCard { border-color:#314760; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
     .profileTitle { display:flex; justify-content: space-between; align-items:center; gap:10px; }
     .profileTitle b { font-size: 13px; letter-spacing:.2px; }
@@ -68,6 +93,7 @@
     }
     .choiceBtn.active { border-color:#2f6b4f; background: rgba(47,107,79,.12); }
     .choiceBtn.active .badge { border-color:#2f6b4f; background:#bff3d8; }
+
     .profileWarn {
       margin-top:10px;
       border: 1px solid #7a5a2a;
@@ -79,7 +105,6 @@
     }
     .profileWarn strong { color:#ffe2b5; }
 
-    /* category header rows in the wanted table */
     .catrow td{
       border-bottom: 1px solid #1a2430;
       padding: 10px 6px 6px;
@@ -91,7 +116,6 @@
       background: rgba(231,238,247,.04);
     }
 
-    /* editable ship input */
     .shipEdit{
       width: 100%;
       max-width: 240px;
@@ -110,7 +134,6 @@
       box-shadow: 0 0 0 3px rgba(43,91,215,.18);
     }
 
-    /* paste clear blink animation */
     @keyframes pasteBlink {
       0%   { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
       25%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
@@ -124,23 +147,44 @@
 
 <body>
 <header>
-  <h1>Julius Flavus’ EVE Boost Tracker</h1>
+  <div class="headerInner">
+    <h1>Julius Flavus’ EVE Boost Tracker</h1>
+
+    <div class="subhead">
+      Paste command burst “charges” from EVE chat and this tool will:
+      <b>build a persistent roster of who is boosting what</b>, then compare it against your
+      <b>Wanted charges</b> list so you can immediately see what’s <b>filled</b>, <b>missing</b>, or <b>duplicated</b>.
+      <br/>
+      It understands both EVE link format
+      <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code>
+      and plain-text lines, keeps your roster between pastes, and lets you
+      <b>remove pilots</b>, <b>toggle Mindlink</b>, and <b>edit ship names</b> if it guessed wrong.
+      <div>
+        <span class="pill neutral">Tip: Pick Armor / Shield / Mining to auto-fill the Wanted list.</span>
+        <span class="pill neutral">Tip: Recognizes ship shorthand like “Damn”, “Nhawk”, etc.</span>
+        <span class="pill neutral">New: “Copy Share Link URL” exports roster + wanted + profile into the URL hash.</span>
+      </div>
+    </div>
+  </div>
 </header>
 
 <div class="wrap">
 
   <div class="row">
     <div class="card">
-      <label>Paste boost chat lines (you can paste repeatedly; roster persists) One boost line from game per copy/paste works best.</label>
+      <label>Paste boost chat lines (you can paste repeatedly; roster persists)</label>
       <textarea id="chatInput" placeholder='Examples:
 [18:21:20] Julius Flavus > <url=showinfo:42834>Armor Reinforcement Charge</url>  <url=showinfo:42833>Rapid Repair Charge</url> Damnation ML
 [19:07:48] Tavitica > <url=showinfo:42837//1052088085006>Electronic Hardening Charge</url>  <url=showinfo:42836//1052088085003>Electronic Superiority Charge</url>
-[19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge
-[19:51:22] Someone > ES Charge / SO Charge (Damn) +ML'></textarea>
+[19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge'></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
         <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
+
+        <!-- Only button you asked for -->
+        <button id="copyShareBtn" class="ghostbtn" type="button">Copy Share Link URL</button>
+
         <span class="muted small" id="statusText"></span>
       </div>
 
@@ -161,7 +205,6 @@
       </table>
     </div>
 
-    <!-- Profile selection (ONLY top buttons are used to load wanted charges) -->
     <div class="card profileCard">
       <div class="profileTitle">
         <div>
@@ -259,13 +302,7 @@
   </div>
 
   <div class="card foot">
-    <b>How it works:</b> You paste chat. We parse
-    <code>&lt;url=showinfo:...&gt;Charge Name&lt;/url&gt;</code> links
-    (including weird <code>//</code> variants and trailing <code>*</code>), update a
-    <b>persistent roster</b>, then compare roster vs your “wanted” list.
-    <div style="margin-top:10px; font-size:11px; opacity:.85;">
-      © <span id="year"></span> Julius Flavus. All rights reserved.
-    </div>
+    © <span id="year"></span> Julius Flavus. All rights reserved.
   </div>
 
   <script>
@@ -361,7 +398,6 @@ const SHIELD_CHARGES = new Set([
   "Active Shielding Charge"
 ].map(s => s.toLowerCase()));
 
-// Known charges for plain-text detection (fallback when no <url=showinfo:...> links exist)
 const KNOWN_CHARGES = Array.from(new Set([
   ...ARMOR_CHARGES,
   ...SHIELD_CHARGES,
@@ -632,6 +668,7 @@ Miasmos Amastris Edition
 Miasmos Quafe Ultra Edition
 Miasmos Quafe Ultramarine Edition
 Miasmos Quafe Ultramarine Edition
+Miasmos Quafe Ultramarine Edition
 Mimir
 Minmatar Shuttle
 Minokawa
@@ -833,27 +870,14 @@ function normalizeChargeName(s){ return (s || "").replace(/\s*\*+\s*$/g, "").rep
 function normShip(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
 const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) })).sort((a,b) => b.norm.length - a.norm.length);
 
-/**
- * #8: Ship shorthand + bracket/paren friendliness
- * - We normalize the whole line (non-alnum -> spaces) so [Damn] (Damn) Damnation(ML) all become tokens.
- * - SHIP_ALIASES maps common shorthand tokens -> full ship names.
- * - We scan tokens first (cheap), then do a full-name search fallback (your original behavior).
- *
- * Tip: If you want more aliases, add them here (LEFT side must be a single token after normalization).
- */
 const SHIP_ALIASES = new Map(Object.entries({
-  // Damnation
   "damntion": "Damnation",
   "damn": "Damnation",
   "dam": "Damnation",
-
-  // Nighthawk
   "nhawk": "Nighthawk",
   "nighthk": "Nighthawk",
   "nighthwk": "Nighthawk",
-  "nh": "Nighthawk",          // if this ever causes false matches, delete this one
-
-  // Command ships / common boosters (optional, safe-ish)
+  "nh": "Nighthawk",
   "vult": "Vulture",
   "vultr": "Vulture",
   "clay": "Claymore",
@@ -862,8 +886,6 @@ const SHIP_ALIASES = new Map(Object.entries({
   "tengu": "Tengu",
   "orca": "Orca",
   "porp": "Porpoise",
-
-  // Fleet slang you might see (edit as you like)
   "pally": "Paladin",
   "pal": "Paladin"
 }));
@@ -887,6 +909,9 @@ const profileShieldBtn = document.getElementById("profileShieldBtn");
 const profileMiningBtn = document.getElementById("profileMiningBtn");
 const clearWantedBtn = document.getElementById("clearWantedBtn");
 
+/* Copy Share button */
+const copyShareBtn = document.getElementById("copyShareBtn");
+
 function nowStamp() {
   const d = new Date();
   const pad = n => String(n).padStart(2,"0");
@@ -894,9 +919,6 @@ function nowStamp() {
 }
 function getWantedList() { return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean); }
 
-/** -----------------------------
- * Ship datalist + editing
- * ----------------------------- */
 function ensureShipDatalist(){
   if (document.getElementById("shipDatalist")) return;
   const dl = document.createElement("datalist");
@@ -916,9 +938,6 @@ function setPilotShip(pilotKey, newShip){
   renderAll(`Ship updated for ${r.pilot}`);
 }
 
-/** -----------------------------
- * Parsing
- * ----------------------------- */
 function extractLinks(line) {
   const out = [];
   const re = /<url=showinfo:[^>]*>(.*?)<\/url>/gi;
@@ -930,8 +949,6 @@ function extractLinks(line) {
   return [...new Set(out)];
 }
 
-// Supports multi-hop lines like:
-// [19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge
 function parsePilot(line) {
   const parts = (line || "").split(" > ").map(p => p.trim()).filter(Boolean);
   if (parts.length < 2) return "";
@@ -941,11 +958,7 @@ function parsePilot(line) {
 
 function detectMindlink(line) { return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line); }
 
-/**
- * UPDATED ship detection (adds shorthand + better "ship in parentheses/brackets" handling)
- */
 function detectShip(line) {
-  // Strip URL tags and timestamps, but KEEP bracket/paren content (normalization will handle it)
   const stripped = (line || "")
     .replace(/<url=showinfo:[^>]*>/gi, " ")
     .replace(/<\/url>/gi, " ")
@@ -953,22 +966,14 @@ function detectShip(line) {
     .replace(/\s+/g, " ")
     .trim();
 
-  const ns = normShip(stripped); // non-alnum -> spaces, lowercased
+  const ns = normShip(stripped);
   if (!ns) return "";
 
-  // 1) Token-based alias lookup (fast, catches "damn", "nhawk", "vult", etc.)
-  // We also try a "no vowels"-ish variant? Not needed yet—keep it simple.
   const tokens = ns.split(" ").filter(Boolean);
-
-  // First, direct tokens
   for (const t of tokens) {
     if (SHIP_ALIASES.has(t)) return SHIP_ALIASES.get(t);
   }
 
-  // 1b) Also check for "ship:" patterns that normalize to ["ship", "<token>"]
-  // (Already covered by token scan above, but harmless.)
-
-  // 2) Full ship name match (original behavior) – catches real ship names present anywhere
   for (const s of SHIP_NORMS) {
     if (!s.norm) continue;
     const pat = new RegExp(`(^|\\s)${escapeRegExp(s.norm)}(\\s|$)`, "i");
@@ -984,7 +989,7 @@ function extractPlainChargesFromTail(tailText) {
 
   const found = [];
   for (const charge of KNOWN_CHARGES) {
-    const pat = new RegExp(`\\b${escapeRegExp(charge)}\\b\\s*\\**`, "i"); // allow trailing *
+    const pat = new RegExp(`\\b${escapeRegExp(charge)}\\b\\s*\\**`, "i");
     if (pat.test(tail)) found.push(charge);
   }
   return [...new Set(found)].map(normalizeChargeName);
@@ -1017,9 +1022,6 @@ function parsePastedText(text) {
     .filter(Boolean);
 }
 
-/** -----------------------------
- * Roster ops
- * ----------------------------- */
 function upsertRoster(updates) {
   let added = 0, updated = 0;
   for (const u of updates) {
@@ -1036,7 +1038,7 @@ function upsertRoster(updates) {
       existing.pilot = u.pilot;
       existing.ship = u.ship || existing.ship || "";
       existing.mindlink = (u.mindlink ? true : existing.mindlink);
-      existing.boosts = cleanedBoosts; // latest paste wins
+      existing.boosts = cleanedBoosts;
       existing.updatedAt = Date.now();
       updated++;
     }
@@ -1060,11 +1062,8 @@ function toggleMindlink(pilotKey) {
   renderAll(`Mindlink ${r.mindlink ? "enabled" : "disabled"} for ${r.pilot}`);
 }
 
-/** -----------------------------
- * Profile selection (TOP buttons only)
- * ----------------------------- */
 function setProfile(profile) {
-  state.selectedProfile = profile; // "armor" | "shield" | "mining"
+  state.selectedProfile = profile;
   if (profile === "armor") wantedInput.value = armorPvpWanted().join("\n");
   if (profile === "shield") wantedInput.value = shieldPvpWanted().join("\n");
   if (profile === "mining") wantedInput.value = miningWanted().join("\n");
@@ -1094,9 +1093,6 @@ function renderProfileUI() {
   }
 }
 
-/** -----------------------------
- * Boost index
- * ----------------------------- */
 function buildRosterBoostIndex() {
   const idx = new Map();
   for (const key of Object.keys(state.roster)) {
@@ -1111,9 +1107,6 @@ function buildRosterBoostIndex() {
   return idx;
 }
 
-/** -----------------------------
- * Rendering
- * ----------------------------- */
 function renderRosterTable() {
   ensureShipDatalist();
   const keys = Object.keys(state.roster).sort((a,b) => (state.roster[b].updatedAt||0) - (state.roster[a].updatedAt||0));
@@ -1230,9 +1223,6 @@ function renderAll(reason="") {
   if (reason) setTimeout(() => { statusText.textContent = ""; }, 1600);
 }
 
-/** -----------------------------
- * Blink + delayed clear for paste box
- * ----------------------------- */
 function blinkAndClearPaste(delayMs = 180){
   chatInput.classList.remove("blinkClear");
   void chatInput.offsetWidth;
@@ -1243,9 +1233,6 @@ function blinkAndClearPaste(delayMs = 180){
   }, Math.max(0, delayMs));
 }
 
-/** -----------------------------
- * Events
- * ----------------------------- */
 applyBtn.onclick = () => {
   const updates = parsePastedText(chatInput.value);
   if (!updates.length) { renderAll("No charges found in paste"); return; }
@@ -1260,7 +1247,6 @@ clearRosterBtn.onclick = () => {
   renderAll("Roster cleared");
 };
 
-// TOP buttons only
 profileArmorBtn.onclick = () => setProfile("armor");
 profileShieldBtn.onclick = () => setProfile("shield");
 profileMiningBtn.onclick = () => setProfile("mining");
@@ -1298,8 +1284,113 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
   });
 });
 
-wantedInput.value = state.wantedText || "";
-renderAll("Loaded");
+/* ---------------------------
+   SHARE LINK (Option A)
+   Encodes roster + wanted + profile into URL hash: #s=...
+---------------------------- */
+
+function compressStateForShare() {
+  const slimRoster = {};
+  for (const k of Object.keys(state.roster || {})) {
+    const r = state.roster[k] || {};
+    slimRoster[k] = {
+      p: r.pilot || "",
+      s: r.ship || "",
+      m: !!r.mindlink,
+      b: Array.isArray(r.boosts) ? r.boosts : []
+    };
+  }
+  return {
+    v: 1,
+    t: Date.now(),
+    profile: state.selectedProfile || "",
+    wanted: wantedInput.value || "",
+    roster: slimRoster
+  };
+}
+
+function encodeSharePayload(obj) {
+  const json = JSON.stringify(obj);
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeSharePayload(b64url) {
+  const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64url.length + 3) % 4);
+  const json = decodeURIComponent(escape(atob(b64)));
+  return JSON.parse(json);
+}
+
+function buildShareUrl() {
+  const payload = compressStateForShare();
+  const encoded = encodeSharePayload(payload);
+  const base = window.location.origin + window.location.pathname;
+  return `${base}#s=${encoded}`;
+}
+
+function applySharedState(payload) {
+  if (!payload || payload.v !== 1) return false;
+
+  state.selectedProfile = payload.profile || "";
+  wantedInput.value = payload.wanted || "";
+  state.wantedText = wantedInput.value;
+
+  const restored = {};
+  const inRoster = payload.roster || {};
+  for (const k of Object.keys(inRoster)) {
+    const r = inRoster[k] || {};
+    restored[k] = {
+      pilot: r.p || "",
+      ship: r.s || "",
+      mindlink: !!r.m,
+      boosts: Array.isArray(r.b) ? r.b : [],
+      updatedAt: Date.now()
+    };
+  }
+  state.roster = restored;
+
+  saveState(state);
+  renderAll("Loaded from share link");
+  return true;
+}
+
+function tryLoadFromShareLink() {
+  const hash = window.location.hash || "";
+  const m = hash.match(/#s=([A-Za-z0-9\-_]+)/);
+  if (!m) return false;
+  try {
+    const payload = decodeSharePayload(m[1]);
+    return applySharedState(payload);
+  } catch (e) {
+    console.warn("Invalid share payload", e);
+    return false;
+  }
+}
+
+/* Copy Share Link URL button: always builds link from CURRENT state, copies it */
+copyShareBtn?.addEventListener("click", async () => {
+  const url = buildShareUrl();
+  // (Optional) update the address bar so if they paste from browser it matches what we copied:
+  // window.location.hash = url.split("#")[1] || "";
+
+  try {
+    await navigator.clipboard.writeText(url);
+    statusText.textContent = "✓ Share URL copied";
+    setTimeout(() => statusText.textContent = "", 1200);
+  } catch {
+    prompt("Copy this share URL:", url);
+  }
+});
+
+/* ---------------------------
+   INITIAL LOAD
+   Prefer share link state if present; otherwise localStorage
+---------------------------- */
+const loadedFromShare = tryLoadFromShareLink();
+if (!loadedFromShare) {
+  wantedInput.value = state.wantedText || "";
+  renderAll("Loaded");
+}
 </script>
 </body>
 </html>
