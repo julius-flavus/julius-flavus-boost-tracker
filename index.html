@@ -161,8 +161,8 @@
       <b>remove pilots</b>, <b>toggle Mindlink</b>, and <b>edit ship names</b> if it guessed wrong.
       <div>
         <span class="pill neutral">Tip: Pick Armor / Shield / Mining to auto-fill the Wanted list.</span>
-        <span class="pill neutral">Tip: Recognizes ship shorthand like “Damn”, “Nhawk”, etc.</span>
-        <span class="pill neutral">New: “Copy Share Link URL” exports roster + wanted + profile into the URL hash.</span>
+        <span class="pill neutral">Tip: Add backups via “x2” (example: “Shield Extension Charge x2”).</span>
+        <span class="pill neutral">Share link exports roster + wanted + profile into the URL hash.</span>
       </div>
     </div>
   </div>
@@ -181,10 +181,7 @@
       <div class="btnrow" style="margin-top:10px;">
         <button id="applyBtn">Apply to roster</button>
         <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
-
-        <!-- Only button you asked for -->
         <button id="copyShareBtn" class="ghostbtn" type="button">Copy Share Link URL</button>
-
         <span class="muted small" id="statusText"></span>
       </div>
 
@@ -233,7 +230,7 @@
 
       <div class="hr"></div>
 
-      <label>Wanted charges (one per line)</label>
+      <label>Wanted charges (one per line — add “x2” for backups)</label>
       <textarea id="wantedInput" class="mono" style="min-height: 220px;"></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
@@ -312,6 +309,9 @@
 </div>
 
 <script>
+/* =========================
+   STATE / STORAGE
+========================= */
 const STORAGE_KEY = "eveBoostTracker_roster_v3_julius";
 
 function loadState() {
@@ -331,6 +331,9 @@ function loadState() {
 }
 function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
+/* =========================
+   WANTED PROFILES
+========================= */
 function armorPvpWanted() {
   return [
     "Armor Reinforcement Charge",
@@ -365,6 +368,9 @@ function miningWanted() {
   ];
 }
 
+/* =========================
+   CHARGE CATEGORIES
+========================= */
 const INFO_CHARGES = new Set([
   "Electronic Hardening Charge",
   "Electronic Superiority Charge",
@@ -429,6 +435,9 @@ function chargeCategory(chargeName){
   return "other";
 }
 
+/* =========================
+   SHIPS
+========================= */
 const SHIPS_RAW = `Abaddon
 Absolution
 Adrestia
@@ -858,6 +867,9 @@ Zirnitra`;
 
 const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
+/* =========================
+   HELPERS
+========================= */
 function escapeHtml(str) {
   return (str || "").replace(/[&<>"']/g, s => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -866,6 +878,30 @@ function escapeHtml(str) {
 function normalizeName(s){ return (s || "").trim().replace(/\s+/g, " ").toLowerCase(); }
 function escapeRegExp(s){ return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 function normalizeChargeName(s){ return (s || "").replace(/\s*\*+\s*$/g, "").replace(/\s+/g, " ").trim(); }
+
+/* Wanted backups: supports "Charge Name x2" */
+function parseWantedLine(line){
+  const raw = (line || "").trim();
+  if (!raw) return null;
+
+  const m = raw.match(/^(.*?)(?:\s*(?:x|X|×)\s*(\d+))\s*$/);
+  const name = normalizeChargeName((m ? m[1] : raw) || "");
+  if (!name) return null;
+
+  let need = 1;
+  if (m && m[2]) {
+    const n = parseInt(m[2], 10);
+    if (Number.isFinite(n) && n > 0) need = Math.min(n, 9);
+  }
+  return { name, need };
+}
+function getWantedItems(){
+  return wantedInput.value
+    .split(/\r?\n/)
+    .map(s => parseWantedLine(s))
+    .filter(Boolean);
+}
+function getWantedList() { return getWantedItems().map(w => w.name); }
 
 function normShip(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
 const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) })).sort((a,b) => b.norm.length - a.norm.length);
@@ -890,6 +926,9 @@ const SHIP_ALIASES = new Map(Object.entries({
   "pal": "Paladin"
 }));
 
+/* =========================
+   DOM
+========================= */
 const chatInput = document.getElementById("chatInput");
 const wantedInput = document.getElementById("wantedInput");
 const statusText = document.getElementById("statusText");
@@ -908,16 +947,21 @@ const profileArmorBtn = document.getElementById("profileArmorBtn");
 const profileShieldBtn = document.getElementById("profileShieldBtn");
 const profileMiningBtn = document.getElementById("profileMiningBtn");
 const clearWantedBtn = document.getElementById("clearWantedBtn");
-
-/* Copy Share button */
 const copyShareBtn = document.getElementById("copyShareBtn");
 
+/* =========================
+   APP STATE (do NOT load localStorage yet)
+========================= */
+let state = { roster: {}, wantedText: "", selectedProfile: "" };
+
+/* =========================
+   UI / RENDER
+========================= */
 function nowStamp() {
   const d = new Date();
   const pad = n => String(n).padStart(2,"0");
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
-function getWantedList() { return wantedInput.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean); }
 
 function ensureShipDatalist(){
   if (document.getElementById("shipDatalist")) return;
@@ -926,8 +970,6 @@ function ensureShipDatalist(){
   dl.innerHTML = SHIP_LIST.map(s => `<option value="${escapeHtml(s)}"></option>`).join("");
   document.body.appendChild(dl);
 }
-
-let state = loadState();
 
 function setPilotShip(pilotKey, newShip){
   const r = state.roster[pilotKey];
@@ -1146,20 +1188,26 @@ function renderRosterTable() {
   });
 }
 
+/* =========================
+   WANTED COMPARISON (BACKUPS)
+========================= */
 function renderWantedComparison() {
-  const wanted = getWantedList().map(normalizeChargeName);
+  const wantedItems = getWantedItems(); // [{name, need}]
   const idx = buildRosterBoostIndex();
 
-  let filledCount = 0, missingCount = 0;
-  const missing = [];
-  const filled = [];
+  let filledPrimary = 0, missingPrimary = 0;
+  let backupMissingCount = 0;
+
+  const needPrimary = [];
+  const needBackup = [];
+  const filledAny = [];
   const dupes = [];
 
   const groups = { shield: [], armor: [], skirmish: [], information: [], mining: [], other: [] };
-  for (const wRaw of wanted) {
-    const w = normalizeChargeName(wRaw);
+  for (const item of wantedItems) {
+    const w = normalizeChargeName(item.name);
     const cat = chargeCategory(w);
-    (groups[cat] || groups.other).push(w);
+    (groups[cat] || groups.other).push({ name: w, need: item.need || 1 });
   }
   const labelFor = { shield:"Shield", armor:"Armor", skirmish:"Skirmish", information:"Information", mining:"Mining", other:"Other" };
   const order = ["shield", "armor", "skirmish", "information", "mining", "other"];
@@ -1169,20 +1217,39 @@ function renderWantedComparison() {
     if (!groups[cat].length) continue;
     rows.push(`<tr class="catrow"><td colspan="3">${labelFor[cat]}</td></tr>`);
 
-    for (const w of groups[cat]) {
+    for (const item of groups[cat]) {
+      const w = item.name;
+      const needN = item.need || 1;
+
       const fills = idx.get(normalizeName(w)) || [];
-      if (fills.length) filledCount++; else missingCount++;
-      if (!fills.length) missing.push(w); else filled.push(w);
+      const haveN = fills.length;
+
+      if (haveN >= 1) filledPrimary++; else missingPrimary++;
+      if (haveN === 0) needPrimary.push({ name: w, need: needN });
+      if (haveN >= 1 && haveN < needN) {
+        backupMissingCount++;
+        needBackup.push({ name: w, need: needN, have: haveN });
+      }
+      if (haveN) filledAny.push({ name: w, need: needN, have: haveN });
 
       const providers = fills.map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
-      const isDupe = fills.length > 1;
+      const isDupe = haveN > 1;
       if (isDupe) dupes.push({ charge: w, providers });
+
+      const pillClass = (haveN === 0) ? "bad" : (haveN < needN ? "warn" : "ok");
+      const note =
+        (haveN === 0) ? `Missing (0/${needN})`
+        : (haveN < needN) ? `Need backup (${haveN}/${needN})`
+        : `OK (${haveN}/${needN})`;
 
       rows.push(`
         <tr>
-          <td><span class="pill ${fills.length ? (isDupe ? "dupe" : "ok") : "bad"}">${escapeHtml(w)}</span></td>
+          <td>
+            <span class="pill ${pillClass}">${escapeHtml(w)}</span>
+            ${needN > 1 ? `<span class="pill neutral">x${needN}</span>` : ``}
+          </td>
           <td class="mono small">${escapeHtml(providers.length ? providers.join(", ") : "—")}</td>
-          <td class="muted small">${escapeHtml(!fills.length ? "Not on roster yet" : (isDupe ? `DUPLICATE (${fills.length} pilots)` : `OK (${fills.length} pilot)`))}</td>
+          <td class="muted small">${escapeHtml(note)}</td>
         </tr>
       `);
     }
@@ -1191,20 +1258,32 @@ function renderWantedComparison() {
   wantedTable.innerHTML = rows.join("");
 
   summaryPills.innerHTML = `
-    <span class="pill ok">Filled: ${filledCount}</span>
-    <span class="pill bad">Missing: ${missingCount}</span>
+    <span class="pill ok">Primary filled: ${filledPrimary}</span>
+    <span class="pill bad">Primary missing: ${missingPrimary}</span>
+    <span class="pill warn">Backup missing: ${backupMissingCount}</span>
     <span class="pill dupe">Duplicates: ${dupes.length}</span>
     <span class="pill neutral">Boosting Pilots: ${Object.keys(state.roster).length}</span>
   `;
 
-  needMsg.textContent = missing.length
-    ? `NEED CHARGES\n` + missing.map(c => `${chatTagForCharge(c)} ${c}`).join("\n")
-    : `NEED CHARGES\n— all requested charges are filled —`;
+  const primaryLines = needPrimary.map(x => `${chatTagForCharge(x.name)} ${x.name}${x.need > 1 ? ` x${x.need}` : ""}`);
+  const backupLines  = needBackup.map(x => `${chatTagForCharge(x.name)} ${x.name} — need ${x.need} (have ${x.have})`);
 
-  filledMsg.textContent = filled.length
-    ? `FILLED CHARGES\n` + filled.map(w => {
-        const providers = (idx.get(normalizeName(w)) || []).map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
-        return `${chatTagForCharge(w)} ${w} — ${formatProviders(providers)}`;
+  needMsg.textContent =
+    (primaryLines.length || backupLines.length)
+      ? [
+          "NEED PRIMARY",
+          ...(primaryLines.length ? primaryLines : ["—"]),
+          "",
+          "NEED BACKUP",
+          ...(backupLines.length ? backupLines : ["—"])
+        ].join("\n")
+      : `NEED PRIMARY\n— all requested charges are filled —\n\nNEED BACKUP\n—`;
+
+  filledMsg.textContent = filledAny.length
+    ? `FILLED CHARGES\n` + filledAny.map(x => {
+        const providers = (idx.get(normalizeName(x.name)) || []).map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
+        const countNote = (x.need && x.need > 1) ? ` (${x.have}/${x.need})` : "";
+        return `${chatTagForCharge(x.name)} ${x.name}${countNote} — ${formatProviders(providers)}`;
       }).join("\n")
     : `FILLED CHARGES\n— none detected on roster yet —`;
 
@@ -1233,62 +1312,9 @@ function blinkAndClearPaste(delayMs = 180){
   }, Math.max(0, delayMs));
 }
 
-applyBtn.onclick = () => {
-  const updates = parsePastedText(chatInput.value);
-  if (!updates.length) { renderAll("No charges found in paste"); return; }
-  const { added, updated } = upsertRoster(updates);
-  renderAll(`Applied (${added} added, ${updated} updated)`);
-  blinkAndClearPaste(180);
-};
-
-clearRosterBtn.onclick = () => {
-  state.roster = {};
-  saveState(state);
-  renderAll("Roster cleared");
-};
-
-profileArmorBtn.onclick = () => setProfile("armor");
-profileShieldBtn.onclick = () => setProfile("shield");
-profileMiningBtn.onclick = () => setProfile("mining");
-
-clearWantedBtn.onclick = () => {
-  wantedInput.value = "";
-  state.wantedText = "";
-  state.selectedProfile = "";
-  saveState(state);
-  renderAll("Cleared wanted (no profile selected)");
-};
-
-let wantedTimer = null;
-wantedInput.addEventListener("input", () => {
-  clearTimeout(wantedTimer);
-  wantedTimer = setTimeout(() => {
-    state.wantedText = wantedInput.value;
-    saveState(state);
-    renderAll("Wanted updated");
-  }, 400);
-});
-
-document.querySelectorAll("button[data-copy]").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const id = btn.getAttribute("data-copy");
-    const el = document.getElementById(id);
-    const text = el.textContent || "";
-    try {
-      await navigator.clipboard.writeText(text);
-      statusText.textContent = "✓ Copied to clipboard";
-      setTimeout(() => statusText.textContent = "", 1200);
-    } catch {
-      prompt("Copy this:", text);
-    }
-  });
-});
-
-/* ---------------------------
-   SHARE LINK (Option A)
-   Encodes roster + wanted + profile into URL hash: #s=...
----------------------------- */
-
+/* =========================
+   SHARE LINK (URL HASH)
+========================= */
 function compressStateForShare() {
   const slimRoster = {};
   for (const k of Object.keys(state.roster || {})) {
@@ -1349,8 +1375,8 @@ function applySharedState(payload) {
   }
   state.roster = restored;
 
+  // Persist so it survives refresh (share link becomes your current state)
   saveState(state);
-  renderAll("Loaded from share link");
   return true;
 }
 
@@ -1367,12 +1393,66 @@ function tryLoadFromShareLink() {
   }
 }
 
-/* Copy Share Link URL button: always builds link from CURRENT state, copies it */
+function hasShareHash(){
+  return /#s=([A-Za-z0-9\-_]+)/.test(window.location.hash || "");
+}
+
+/* =========================
+   EVENTS
+========================= */
+applyBtn.onclick = () => {
+  const updates = parsePastedText(chatInput.value);
+  if (!updates.length) { renderAll("No charges found in paste"); return; }
+  const { added, updated } = upsertRoster(updates);
+  renderAll(`Applied (${added} added, ${updated} updated)`);
+  blinkAndClearPaste(180);
+};
+
+clearRosterBtn.onclick = () => {
+  state.roster = {};
+  saveState(state);
+  renderAll("Roster cleared");
+};
+
+profileArmorBtn.onclick = () => setProfile("armor");
+profileShieldBtn.onclick = () => setProfile("shield");
+profileMiningBtn.onclick = () => setProfile("mining");
+
+clearWantedBtn.onclick = () => {
+  wantedInput.value = "";
+  state.wantedText = "";
+  state.selectedProfile = "";
+  saveState(state);
+  renderAll("Cleared wanted (no profile selected)");
+};
+
+let wantedTimer = null;
+wantedInput.addEventListener("input", () => {
+  clearTimeout(wantedTimer);
+  wantedTimer = setTimeout(() => {
+    state.wantedText = wantedInput.value;
+    saveState(state);
+    renderAll("Wanted updated");
+  }, 400);
+});
+
+document.querySelectorAll("button[data-copy]").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const id = btn.getAttribute("data-copy");
+    const el = document.getElementById(id);
+    const text = el.textContent || "";
+    try {
+      await navigator.clipboard.writeText(text);
+      statusText.textContent = "✓ Copied to clipboard";
+      setTimeout(() => statusText.textContent = "", 1200);
+    } catch {
+      prompt("Copy this:", text);
+    }
+  });
+});
+
 copyShareBtn?.addEventListener("click", async () => {
   const url = buildShareUrl();
-  // (Optional) update the address bar so if they paste from browser it matches what we copied:
-  // window.location.hash = url.split("#")[1] || "";
-
   try {
     await navigator.clipboard.writeText(url);
     statusText.textContent = "✓ Share URL copied";
@@ -1382,15 +1462,26 @@ copyShareBtn?.addEventListener("click", async () => {
   }
 });
 
-/* ---------------------------
-   INITIAL LOAD
-   Prefer share link state if present; otherwise localStorage
----------------------------- */
-const loadedFromShare = tryLoadFromShareLink();
-if (!loadedFromShare) {
-  wantedInput.value = state.wantedText || "";
-  renderAll("Loaded");
-}
+/* =========================
+   STARTUP (FIXED: SHARE WINS)
+========================= */
+(function startup(){
+  let loadedFromShare = false;
+
+  // If share hash exists, load it FIRST (prevents localStorage overwrite)
+  if (hasShareHash()) {
+    loadedFromShare = tryLoadFromShareLink();
+  }
+
+  if (!loadedFromShare) {
+    state = loadState();
+    wantedInput.value = state.wantedText || "";
+    renderAll("Loaded");
+  } else {
+    // state + wantedInput already set by applySharedState()
+    renderAll("Loaded from share link");
+  }
+})();
 </script>
 </body>
 </html>
