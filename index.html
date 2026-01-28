@@ -13,18 +13,6 @@
   line-height: 1.15;
 }
 
-/* ===== INIT. Alliance Logo Size Control ===== */
-.headerBrand img {
-  max-width: 120px !important;
-  max-height: 28px !important;
-  width: auto !important;
-  height: auto !important;
-  display: block;
-  object-fit: contain;
-  opacity: 0.85;
-}
-
-
 /* tighten bottom of profile card */
 .profileCard {
   padding-bottom: 10px;
@@ -177,14 +165,22 @@
   gap: 10px;
 }
 
-.headerBrand img {
-  height: 22px;        /* 👈 smaller */
-  max-height: 22px;    /* 👈 hard clamp */
-  width: auto;
-  object-fit: contain; /* 👈 prevents stretching */
-  opacity: 0.85;
+.headerBrand{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
+/* hard clamp size */
+.headerBrand img{
+  width: 110px;        /* adjust */
+  height: 110px;       /* adjust */
+  max-width: 110px;
+  max-height: 110px;
+  object-fit: contain;
+  display:block;
+  opacity: .85;
+}
 
 	
   </style>
@@ -192,25 +188,28 @@
 
 <body>
 <header>
-<img src="assets/init-logo.png" alt="INIT. Alliance Logo">
-
   <div class="headerInner">
-    <h1>Julius Flavus’ EVE Boost Tracker</h1>
+    <div class="headerBrand">
+      <img src="assets/init-logo.png" alt="INIT. Alliance Logo">
+      <div>
+        <h1>Julius Flavus’ EVE Boost Tracker</h1>
 
-    <div class="subhead">
-      Paste command burst charges from EVE chat to automatically build a live roster of
-<b>who is boosting what</b>. The tracker compares your fleet against the
-<b>Wanted charges</b> list so you can instantly see what’s <b>filled</b>, <b>missing</b>, or <b>duplicated</b>.
+        <div class="subhead">
+          Paste command burst charges from EVE chat to automatically build a live roster of
+          <b>who is boosting what</b>. The tracker compares your fleet against the
+          <b>Wanted charges</b> list so you can instantly see what’s <b>filled</b>, <b>missing</b>, or <b>duplicated</b>.
 
-<div style="margin-top:8px;">
-  <span class="pill neutral">Pick Armor / Shield / Mining to auto-fill Wanted</span>
-  <span class="pill neutral">Add backups using “x2” (example: Shield Extension Charge x2)</span>
-  <span class="pill neutral">Share link saves roster + wanted + profile</span>
-</div>
-
+          <div style="margin-top:8px;">
+            <span class="pill neutral">Pick Armor / Shield / Mining to auto-fill Wanted</span>
+            <span class="pill neutral">Add backups using “x2” (example: Shield Extension Charge x2)</span>
+            <span class="pill neutral">Share link saves roster + wanted + profile</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </header>
+
 
 <div class="wrap">
 
