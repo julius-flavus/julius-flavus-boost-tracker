@@ -156,11 +156,28 @@
       100% { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
     }
     .blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
+	
+	/* INIT. alliance logo in header */
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerBrand img {
+  height: 26px;   /* adjust size here */
+  width: auto;
+  opacity: 0.85;  /* <-- THIS is the “Pro tip” */
+}
+
+	
   </style>
 </head>
 
 <body>
 <header>
+<img src="assets/init-logo.png" alt="INIT. Alliance Logo">
+
   <div class="headerInner">
     <h1>Julius Flavus’ EVE Boost Tracker</h1>
 
