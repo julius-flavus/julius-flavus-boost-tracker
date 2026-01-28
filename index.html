@@ -892,6 +892,16 @@ function normalizeName(s){ return (s || "").trim().replace(/\s+/g, " ").toLowerC
 function escapeRegExp(s){ return (s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 function normalizeChargeName(s){ return (s || "").replace(/\s*\*+\s*$/g, "").replace(/\s+/g, " ").trim(); }
 
+function chatTagShort(chargeName){
+  const n = (chargeName || "").trim().toLowerCase();
+  if (SHIELD_CHARGES.has(n)) return "[Sh]";
+  if (ARMOR_CHARGES.has(n))  return "[Ar]";
+  if (SKIRMISH_CHARGES.has(n)) return "[Sk]";
+  if (INFO_CHARGES.has(n))   return "[In]";
+  if (MINING_CHARGES.has(n)) return "[Mi]";
+  return "[Ot]";
+}
+
 /* Wanted backups: supports "Charge Name x2" */
 function parseWantedLine(line){
   const raw = (line || "").trim();
@@ -1293,16 +1303,29 @@ function renderWantedComparison() {
       : `NEED PRIMARY\n— all requested charges are filled —\n\nNEED BACKUP\n—`;
 
   filledMsg.textContent = filledAny.length
-    ? `FILLED CHARGES\n` + filledAny.map(x => {
-        const providers = (idx.get(normalizeName(x.name)) || []).map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
-        const countNote = (x.need && x.need > 1) ? ` (${x.have}/${x.need})` : "";
-        return `${chatTagForCharge(x.name)} ${x.name}${countNote} — ${formatProviders(providers)}`;
-      }).join("\n")
-    : `FILLED CHARGES\n— none detected on roster yet —`;
+  ? `FILLED CHARGES\n` + filledAny.map(x => {
+      const providers = (idx.get(normalizeName(x.name)) || []).map(f =>
+        `${f.pilot}${f.ship ? ` ${f.ship}` : ""}${f.mindlink ? "+ML" : ""}`.trim()
+      );
+
+      const countNote = (x.need && x.need > 1) ? ` (${x.have}/${x.need})` : "";
+
+      // Two-line format: charge on its own line, providers indented below
+      const line1 = `${chatTagShort(x.name)} ${x.name}${countNote}`;
+      const line2 = `  ${providers.length ? providers.join("; ") : "—"}`;
+      return `${line1}\n${line2}`;
+    }).join("\n")
+  : `FILLED CHARGES\n— none detected on roster yet —`;
 
   dupeMsg.textContent = dupes.length
-    ? `DUPLICATES\n` + dupes.map(d => `${chatTagForCharge(d.charge)} ${d.charge} — ${formatProviders(d.providers)}`).join("\n")
-    : `DUPLICATES\n—`;
+  ? `DUPLICATES\n` + dupes.map(d => {
+      // Two-line, wrap-proof format
+      const line1 = `${chatTagShort(d.charge)} ${d.charge}`;
+      const line2 = `  ${formatProviders(d.providers) || "—"}`;
+      return `${line1}\n${line2}`;
+    }).join("\n")
+  : `DUPLICATES\n—`;
+
 }
 
 function renderAll(reason="") {
