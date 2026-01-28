@@ -158,17 +158,21 @@
     .blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
 	
 	/* INIT. alliance logo in header */
+/* INIT. alliance logo in header */
 .headerBrand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .headerBrand img {
-  height: 26px;   /* adjust size here */
+  height: 22px;        /* 👈 smaller */
+  max-height: 22px;    /* 👈 hard clamp */
   width: auto;
-  opacity: 0.85;  /* <-- THIS is the “Pro tip” */
+  object-fit: contain; /* 👈 prevents stretching */
+  opacity: 0.85;
 }
+
 
 	
   </style>
