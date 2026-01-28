@@ -233,11 +233,20 @@
 [19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge'></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
-        <button id="applyBtn">Apply to roster</button>
-        <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
-        <button id="copyShareBtn" class="ghostbtn" type="button">Copy Share Link URL</button>
-        <span class="muted small" id="statusText"></span>
-      </div>
+  <button id="applyBtn">Apply to roster</button>
+  <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
+
+  <button id="copyShareBtn" class="ghostbtn" type="button">
+    Copy Share Link URL
+  </button>
+
+  <span class="muted small">
+    Share links include roster + wanted list
+  </span>
+
+  <span class="muted small" id="statusText"></span>
+</div>
+
 
       <div class="hr"></div>
 
@@ -1561,23 +1570,38 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 });
 
 copyShareBtn?.addEventListener("click", async () => {
-  statusText.textContent = "Uploading…";
+  statusText.textContent = "Uploading share link…";
+
+  // 1️⃣ Try short link (Cloudflare Worker)
   try {
-    const url = await buildShareUrlShort();
-    await navigator.clipboard.writeText(url);
-    statusText.textContent = "✓ Short share URL copied";
-    setTimeout(() => statusText.textContent = "", 1200);
-  } catch (e) {
-    console.error(e);
-    statusText.textContent = "✗ Share failed";
-    setTimeout(() => statusText.textContent = "", 1800);
-    // fallback prompt so you can still copy
+    const shortUrl = await buildShareUrlShort();
+    await navigator.clipboard.writeText(shortUrl);
+    statusText.textContent = "✓ Short share link copied";
+    setTimeout(() => statusText.textContent = "", 1400);
+    return;
+  } catch (err) {
+    console.warn("Short share failed, falling back", err);
+  }
+
+  // 2️⃣ Fallback: long URL (#s=…)
+  try {
+    const longUrl = buildShareUrl();
+    await navigator.clipboard.writeText(longUrl);
+    statusText.textContent = "⚠ Short link unavailable — long link copied";
+    setTimeout(() => statusText.textContent = "", 2200);
+  } catch (err) {
+    console.error("Both share methods failed", err);
+    statusText.textContent = "✗ Share failed — copy manually";
+    setTimeout(() => statusText.textContent = "", 2200);
+
+    // 3️⃣ Absolute last resort
     try {
-      const url = await buildShareUrlShort();
-      prompt("Copy this share URL:", url);
+      const longUrl = buildShareUrl();
+      prompt("Copy this share link:", longUrl);
     } catch {}
   }
 });
+
 
 /* =========================
    STARTUP (FIXED: SHARE WINS)
