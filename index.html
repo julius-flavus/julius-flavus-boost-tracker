@@ -1262,7 +1262,12 @@ function buildRosterBoostIndex() {
 
 function renderRosterTable() {
   ensureShipDatalist();
-  const keys = Object.keys(state.roster).sort((a,b) => (state.roster[b].updatedAt||0) - (state.roster[a].updatedAt||0));
+  const keys = Object.keys(state.roster).sort((a, b) => {
+  const pa = state.roster[a]?.pilot || "";
+  const pb = state.roster[b]?.pilot || "";
+  return pa.localeCompare(pb, undefined, { sensitivity: "base" });
+});
+
   if (!keys.length) {
     rosterTable.innerHTML = `<tr><td colspan="5" class="muted small">— empty roster —</td></tr>`;
     return;
