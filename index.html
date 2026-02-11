@@ -40,12 +40,6 @@
   min-width: 0;
 }
 
-/* Keep intro text readable */
-.subhead {
-  max-width: 900px;
-}
-
-
     .subhead {
   margin-top: 10px;
   color:#9db0c6;
@@ -168,14 +162,7 @@
     }
     .blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
 	
-	/* INIT. alliance logo in header */
 /* INIT. alliance logo in header */
-.headerBrand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .headerBrand{
   display:flex;
   align-items:center;
@@ -184,14 +171,15 @@
 
 /* hard clamp size */
 .headerBrand img{
-  width: 110px;        /* adjust */
-  height: 110px;       /* adjust */
+  width: 110px;
+  height: 110px;
   max-width: 110px;
   max-height: 110px;
   object-fit: contain;
   display:block;
   opacity: .85;
 }
+
 
 	
   </style>
@@ -212,7 +200,7 @@
 
           <div style="margin-top:8px;">
             <span class="pill neutral">Pick Armor / Shield / Mining to auto-fill Wanted</span>
-            <span class="pill neutral">Add backups using “x2” (example: Shield Extension Charge x2)</span>
+            <span class="pill neutral">Backup checkbox (or type x2) — e.g., Shield Extension Charge x2</span>
             <span class="pill neutral">Share link saves roster + wanted + profile</span>
           </div>
         </div>
@@ -323,12 +311,14 @@
 
       <table>
         <thead>
-          <tr>
-            <th style="width: 28%;">Wanted charge</th>
-            <th style="width: 36%;">Filled by (ship + ML)</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
+  <tr>
+    <th style="width: 28%;">Wanted charge</th>
+    <th style="width: 36%;">Filled by (ship + ML)</th>
+    <th style="width: 14%;">Backup?</th>
+    <th>Notes</th>
+  </tr>
+</thead>
+
         <tbody id="wantedTable"></tbody>
       </table>
     </div>
@@ -954,6 +944,36 @@ function chatTagShort(chargeName){
   return "[Ot]";
 }
 
+function wantedItemsToText(items){
+  return (items || []).map(it => {
+    const name = normalizeChargeName(it.name || "");
+    const need = Math.max(1, Math.min(9, parseInt(it.need || 1, 10) || 1));
+    return need > 1 ? `${name} x${need}` : name;
+  }).join("\n");
+}
+
+function setBackupForWantedName(chargeName, wantBackup){
+  const target = normalizeName(normalizeChargeName(chargeName));
+  const items = getWantedItems();
+
+  const next = items.map(it => {
+    const n = normalizeName(normalizeChargeName(it.name));
+    if (n !== target) return it;
+    return { name: it.name, need: wantBackup ? 2 : 1 };
+  });
+
+  // Update textarea without triggering "Wanted updated"
+  muteWantedInput = true;
+  wantedInput.value = wantedItemsToText(next);
+  muteWantedInput = false;
+
+  // Persist + rerender once
+  state.wantedText = wantedInput.value;
+  saveState(state);
+  renderAll("Backup updated");
+}
+
+
 /* Wanted backups: supports "Charge Name x2" */
 function parseWantedLine(line){
   const raw = (line || "").trim();
@@ -1028,6 +1048,22 @@ const copyShareBtn = document.getElementById("copyShareBtn");
    APP STATE (do NOT load localStorage yet)
 ========================= */
 let state = { roster: {}, wantedText: "", selectedProfile: "" };
+
+// must be declared before any use
+let muteWantedInput = false;
+
+let wantedTimer = null;
+wantedInput.addEventListener("input", () => {
+  if (muteWantedInput) return;
+
+  clearTimeout(wantedTimer);
+  wantedTimer = setTimeout(() => {
+    state.wantedText = wantedInput.value;
+    saveState(state);
+    renderAll("Wanted updated");
+  }, 400);
+});
+
 
 /* =========================
    UI / RENDER
@@ -1290,7 +1326,7 @@ function renderWantedComparison() {
   const rows = [];
   for (const cat of order) {
     if (!groups[cat].length) continue;
-    rows.push(`<tr class="catrow"><td colspan="3">${labelFor[cat]}</td></tr>`);
+    rows.push(`<tr class="catrow"><td colspan="4">${labelFor[cat]}</td></tr>`);
 
     for (const item of groups[cat]) {
       const w = item.name;
@@ -1317,20 +1353,41 @@ function renderWantedComparison() {
         : (haveN < needN) ? `Need backup (${haveN}/${needN})`
         : `OK (${haveN}/${needN})`;
 
-      rows.push(`
-        <tr>
-          <td>
-            <span class="pill ${pillClass}">${escapeHtml(w)}</span>
-            ${needN > 1 ? `<span class="pill neutral">x${needN}</span>` : ``}
-          </td>
-          <td class="mono small">${escapeHtml(providers.length ? providers.join(", ") : "—")}</td>
-          <td class="muted small">${escapeHtml(note)}</td>
-        </tr>
-      `);
+      const isBackupWanted = needN > 1;
+
+rows.push(`
+  <tr>
+    <td>
+      <span class="pill ${pillClass}">${escapeHtml(w)}</span>
+      ${needN > 1 ? `<span class="pill neutral">x${needN}</span>` : ``}
+    </td>
+
+    <td class="mono small">${escapeHtml(providers.length ? providers.join(", ") : "—")}</td>
+
+    <td>
+      <label class="small" style="display:flex; align-items:center; gap:8px; margin:0; color:#9db0c6;">
+        <input type="checkbox"
+               data-backup="${escapeHtml(w)}"
+               ${isBackupWanted ? "checked" : ""} />
+        <span class="muted small">x2</span>
+      </label>
+    </td>
+
+    <td class="muted small">${escapeHtml(note)}</td>
+  </tr>
+`);
+
     }
   }
 
   wantedTable.innerHTML = rows.join("");
+
+wantedTable.querySelectorAll("input[type='checkbox'][data-backup]").forEach(cb => {
+  cb.addEventListener("change", () => {
+    const name = cb.getAttribute("data-backup") || "";
+    setBackupForWantedName(name, cb.checked);
+  });
+});
 
   summaryPills.innerHTML = `
     <span class="pill ok">Primary filled: ${filledPrimary}</span>
@@ -1543,16 +1600,6 @@ clearWantedBtn.onclick = () => {
   saveState(state);
   renderAll("Cleared wanted (no profile selected)");
 };
-
-let wantedTimer = null;
-wantedInput.addEventListener("input", () => {
-  clearTimeout(wantedTimer);
-  wantedTimer = setTimeout(() => {
-    state.wantedText = wantedInput.value;
-    saveState(state);
-    renderAll("Wanted updated");
-  }, 400);
-});
 
 document.querySelectorAll("button[data-copy]").forEach(btn => {
   btn.addEventListener("click", async () => {
