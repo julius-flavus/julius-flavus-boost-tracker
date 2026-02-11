@@ -351,14 +351,27 @@
     </div>
   </div>
 
-  <div class="card foot">
-  <div class="muted small"
-       style="margin-bottom:6px;"
-       title="If this tool saved your fleet, tips (ISK) are always appreciated. Send to Julius Flavus in-game.">
-    Fly safe. Tips (ISK) appreciated — <b>Julius Flavus</b>
+<div class="card foot" id="tipsCard">
+  <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+    <div>
+      <div style="font-weight:650; letter-spacing:.2px;">Enjoying the tracker?</div>
+      <div class="muted small">
+        Tips keep it alive — send ISK to <b>Julius Flavus</b> in-game. ❤️
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <div class="muted small">Fleets tracked (since 02-10-2026)</div>
+      <div id="fleetCount" class="mono" style="font-size:14px;">—</div>
+    </div>
   </div>
+</div>
+
+<div class="card foot">
   © <span id="year"></span> Julius Flavus. All rights reserved.
 </div>
+
+
 
 
   <script>
@@ -369,6 +382,37 @@
 
 <script>
 const SHARE_API_BASE = "https://boost-share.josh8587.workers.dev";
+const COUNTERS_API_BASE = "https://boost-counters.josh8587.workers.dev";
+
+async function fetchFleetCount(){
+  try{
+    const res = await fetch(`${COUNTERS_API_BASE}/fleet-count`, { cache: "no-store" });
+    if(!res.ok) throw new Error(`count fetch failed ${res.status}`);
+    const data = await res.json();
+    return Number(data.count || 0);
+  }catch(e){
+    console.warn("fetchFleetCount failed", e);
+    return null;
+  }
+}
+
+async function incrementFleetCount(){
+  try{
+    const res = await fetch(`${COUNTERS_API_BASE}/fleet-count/incr`, { method: "POST" });
+    if(!res.ok) throw new Error(`count incr failed ${res.status}`);
+    const data = await res.json();
+    return Number(data.count || 0);
+  }catch(e){
+    console.warn("incrementFleetCount failed", e);
+    return null;
+  }
+}
+
+function setFleetCountUI(n){
+  const el = document.getElementById("fleetCount");
+  if(!el) return;
+  el.textContent = (typeof n === "number") ? n.toLocaleString() : "—";
+}
 
 /* =========================
    STATE / STORAGE
@@ -1586,19 +1630,32 @@ function hasShareHash(){
 /* =========================
    EVENTS
 ========================= */
-applyBtn.onclick = () => {
+applyBtn.onclick = async () => {
   const updates = parsePastedText(chatInput.value);
   if (!updates.length) { renderAll("No charges found in paste"); return; }
+
+  const wasEmpty = Object.keys(state.roster).length === 0;
+
   const { added, updated } = upsertRoster(updates);
   renderAll(`Applied (${added} added, ${updated} updated)`);
   blinkAndClearPaste(180);
+
+  // NEW: treat "first successful apply on empty roster" as fleet start
+  if (wasEmpty && (added + updated) > 0) {
+    const n = await incrementFleetCount();
+    if (n !== null) setFleetCountUI(n);
+  }
 };
 
-clearRosterBtn.onclick = () => {
+clearRosterBtn.onclick = async () => {
   state.roster = {};
   saveState(state);
   renderAll("Roster cleared");
+
+  const n = await fetchFleetCount();
+  if (n !== null) setFleetCountUI(n);
 };
+
 
 profileArmorBtn.onclick = () => setProfile("armor");
 profileShieldBtn.onclick = () => setProfile("shield");
@@ -1667,15 +1724,10 @@ copyShareBtn?.addEventListener("click", async () => {
 (async function startup(){
   let loaded = false;
 
-  // Short share link wins
   if (/#p=/.test(window.location.hash || "")) {
     loaded = await tryLoadFromShortShare();
-    if (loaded) {
-      history.replaceState(null, "", window.location.pathname);
-    }
-  }
-  // Optional: keep support for the old long links too
-  else if (typeof hasShareHash === "function" && hasShareHash()) {
+    if (loaded) history.replaceState(null, "", window.location.pathname);
+  } else if (typeof hasShareHash === "function" && hasShareHash()) {
     loaded = tryLoadFromShareLink();
   }
 
@@ -1686,7 +1738,11 @@ copyShareBtn?.addEventListener("click", async () => {
   } else {
     renderAll("Loaded from share link");
   }
+
+  const n = await fetchFleetCount();
+  if (n !== null) setFleetCountUI(n);
 })();
+
 
 
 </script>
