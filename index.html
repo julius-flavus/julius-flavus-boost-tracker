@@ -13,163 +13,170 @@
   line-height: 1.15;
 }
 
-/* tighten bottom of profile card */
 .profileCard {
   padding-bottom: 10px;
 }
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    body { margin: 0; background: #0b0f14; color: #e7eef7; }
 
-    header {
-      border-bottom: 1px solid #1a2430;
-      background: #0e141c;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .headerInner{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px 18px;
-    }
+:root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+body { margin: 0; background: #0b0f14; color: #e7eef7; }
 
-    h1 { margin: 0; font-size: 16px; letter-spacing: .3px; }
+header {
+  border-bottom: 1px solid #1a2430;
+  background: #0e141c;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.headerInner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 18px;
+}
 
-/* Prevent header text from squishing on narrow screens */
+h1 { margin: 0; font-size: 16px; letter-spacing: .3px; }
+
 .headerBrand > div {
   min-width: 0;
 }
 
-    .subhead {
+.subhead {
   margin-top: 10px;
   color:#9db0c6;
   font-size: 12.5px;
   line-height: 1.45;
   max-width: 900px;
 }
-    .subhead b { color:#e7eef7; font-weight: 650; }
-    .subhead code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color:#cfe0f6; }
+.subhead b { color:#e7eef7; font-weight: 650; }
+.subhead code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color:#cfe0f6; }
 
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 18px; display: grid; gap: 14px; }
-    .row { display: grid; gap: 14px; grid-template-columns: 1.2fr .8fr; }
-    @media (max-width: 980px){ .row { grid-template-columns: 1fr; } }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 18px; display: grid; gap: 14px; }
+.row { display: grid; gap: 14px; grid-template-columns: 1.2fr .8fr; }
+@media (max-width: 980px){ .row { grid-template-columns: 1fr; } }
 
-    .card { background: #0e141c; border: 1px solid #1a2430; border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
-    .muted { color: #9db0c6; }
-    label { font-size: 12px; color: #9db0c6; display:block; margin-bottom: 6px; }
-    textarea {
+.card { background: #0e141c; border: 1px solid #1a2430; border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.muted { color: #9db0c6; }
+label { font-size: 12px; color: #9db0c6; display:block; margin-bottom: 6px; }
+textarea {
   width: 100%;
-  min-height: 170px; resize: vertical; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
-    button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
-    button:hover { background:#152233; }
-    button:disabled { opacity:.55; cursor:not-allowed; }
+  min-height: 170px;
+  resize: vertical;
+  border-radius: 10px;
+  border: 1px solid #233043;
+  padding: 10px;
+  color: #e7eef7;
+  background:#0b1118;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+button { border: 1px solid #233043; background:#111a24; color:#e7eef7; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
+button:hover { background:#152233; }
+button:disabled { opacity:.55; cursor:not-allowed; }
 
-    .dangerbtn { border-color: #6b2f2f; color: #ffc7c7; background: rgba(107,47,47,.18); }
-    .dangerbtn:hover { background: rgba(107,47,47,.35); }
+.dangerbtn { border-color: #6b2f2f; color: #ffc7c7; background: rgba(107,47,47,.18); }
+.dangerbtn:hover { background: rgba(107,47,47,.35); }
 
-    .btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #1a2430; padding: 8px 6px; font-size: 13px; vertical-align: top; }
-    th { text-align:left; color:#9db0c6; font-weight: 600; }
+.btnrow { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+table { width:100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid #1a2430; padding: 8px 6px; font-size: 13px; vertical-align: top; }
+th { text-align:left; color:#9db0c6; font-weight: 600; }
 
-    .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 6px; }
-    .ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
-    .warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
-    .dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
-    .bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
-    .neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
+.pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a3a52; color:#cfe0f6; font-size: 12px; margin-right: 6px; margin-top: 6px; }
+.ok { border-color:#2f6b4f; color:#bff3d8; background: rgba(47,107,79,.12); }
+.warn { border-color:#7a5a2a; color:#ffe2b5; background: rgba(122,90,42,.12); }
+.dupe { border-color:#2b5bd7; color:#cfe0ff; background: rgba(43,91,215,.14); }
+.bad  { border-color:#6b2f2f; color:#ffc7c7; background: rgba(107,47,47,.12); }
+.neutral {border-color: #e7eef7;color: #e7eef7;background: rgba(231,238,247,.08);}
 
-    .small { font-size: 12px; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .hr { height: 1px; background:#1a2430; margin: 12px 0; }
-    .right { text-align:right; }
+.small { font-size: 12px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.hr { height: 1px; background:#1a2430; margin: 12px 0; }
+.right { text-align:right; }
 
-    .copybox { width:100%; min-height: 110px; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; white-space: pre-wrap; }
-    .foot { color:#9db0c6; font-size: 12px; }
-    .ghostbtn { background: transparent; border-color:#2a3a52; }
-    .ghostbtn:hover { background:#101a25; }
+.copybox { width:100%; min-height: 110px; border-radius: 10px; border: 1px solid #233043; padding: 10px; color: #e7eef7; background:#0b1118; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.35; white-space: pre-wrap; }
+.foot { color:#9db0c6; font-size: 12px; }
+.ghostbtn { background: transparent; border-color:#2a3a52; }
+.ghostbtn:hover { background:#101a25; }
 
-    .mlwrap { display:flex; align-items:center; gap:8px; }
-    .mlwrap input[type="checkbox"]{ transform: translateY(1px); }
+.mlwrap { display:flex; align-items:center; gap:8px; }
+.mlwrap input[type="checkbox"]{ transform: translateY(1px); }
 
-    .profileCard { border-color:#314760; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
-    .profileTitle { display:flex; justify-content: space-between; align-items:center; gap:10px; }
-    .profileTitle b { font-size: 13px; letter-spacing:.2px; }
-    .profileChoices { display:flex; gap:10px; flex-wrap: wrap; margin-top:10px; }
-    .choiceBtn {
-      border: 1px solid #2a3a52;
-      background:#0f1822;
-      padding: 10px 12px;
-      border-radius: 12px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .choiceBtn .badge {
-      width: 10px; height:10px; border-radius: 999px; border:1px solid #2a3a52;
-      background: rgba(231,238,247,.10);
-      display:inline-block;
-    }
-    .choiceBtn.active { border-color:#2f6b4f; background: rgba(47,107,79,.12); }
-    .choiceBtn.active .badge { border-color:#2f6b4f; background:#bff3d8; }
+.profileCard { border-color:#314760; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
+.profileTitle { display:flex; justify-content: space-between; align-items:center; gap:10px; }
+.profileTitle b { font-size: 13px; letter-spacing:.2px; }
+.profileChoices { display:flex; gap:10px; flex-wrap: wrap; margin-top:10px; }
+.choiceBtn {
+  border: 1px solid #2a3a52;
+  background:#0f1822;
+  padding: 10px 12px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.choiceBtn .badge {
+  width: 10px; height:10px; border-radius: 999px; border:1px solid #2a3a52;
+  background: rgba(231,238,247,.10);
+  display:inline-block;
+}
+.choiceBtn.active { border-color:#2f6b4f; background: rgba(47,107,79,.12); }
+.choiceBtn.active .badge { border-color:#2f6b4f; background:#bff3d8; }
 
-    .profileWarn {
-      margin-top:10px;
-      border: 1px solid #7a5a2a;
-      background: rgba(122,90,42,.10);
-      color:#ffe2b5;
-      border-radius: 12px;
-      padding: 10px 12px;
-      display:none;
-    }
-    .profileWarn strong { color:#ffe2b5; }
+.profileWarn {
+  margin-top:10px;
+  border: 1px solid #7a5a2a;
+  background: rgba(122,90,42,.10);
+  color:#ffe2b5;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display:none;
+}
+.profileWarn strong { color:#ffe2b5; }
 
-    .catrow td{
-      border-bottom: 1px solid #1a2430;
-      padding: 10px 6px 6px;
-      color:#9db0c6;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      font-size: 11px;
-      background: rgba(231,238,247,.04);
-    }
+.catrow td{
+  border-bottom: 1px solid #1a2430;
+  padding: 10px 6px 6px;
+  color:#9db0c6;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  font-size: 11px;
+  background: rgba(231,238,247,.04);
+}
 
-    .shipEdit{
-      width: 100%;
-      max-width: 240px;
-      border-radius: 10px;
-      border: 1px solid #233043;
-      padding: 6px 8px;
-      color: #e7eef7;
-      background:#0b1118;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px;
-      line-height: 1.2;
-      outline: none;
-    }
-    .shipEdit:focus{
-      border-color:#2a3a52;
-      box-shadow: 0 0 0 3px rgba(43,91,215,.18);
-    }
+.shipEdit{
+  width: 100%;
+  max-width: 240px;
+  border-radius: 10px;
+  border: 1px solid #233043;
+  padding: 6px 8px;
+  color: #e7eef7;
+  background:#0b1118;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.2;
+  outline: none;
+}
+.shipEdit:focus{
+  border-color:#2a3a52;
+  box-shadow: 0 0 0 3px rgba(43,91,215,.18);
+}
 
-    @keyframes pasteBlink {
-      0%   { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
-      25%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
-      50%  { box-shadow: 0 0 0 2px rgba(43,91,215,.0);  filter:none; }
-      75%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
-      100% { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
-    }
-    .blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
-	
-/* INIT. alliance logo in header */
+@keyframes pasteBlink {
+  0%   { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
+  25%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
+  50%  { box-shadow: 0 0 0 2px rgba(43,91,215,.0);  filter:none; }
+  75%  { box-shadow: 0 0 0 4px rgba(43,91,215,.22); filter:brightness(1.06); }
+  100% { box-shadow: 0 0 0 0 rgba(43,91,215,.0);   filter:none; }
+}
+.blinkClear { animation: pasteBlink 520ms ease-in-out 1; }
+
 .headerBrand{
   display:flex;
   align-items:center;
   gap:12px;
 }
 
-/* hard clamp size */
 .headerBrand img{
   width: 110px;
   height: 110px;
@@ -179,9 +186,6 @@
   display:block;
   opacity: .85;
 }
-
-
-	
   </style>
 </head>
 
@@ -209,7 +213,6 @@
   </div>
 </header>
 
-
 <div class="wrap">
 
   <div class="row">
@@ -221,20 +224,12 @@
 [19:50:43] local009 > [19:48:57] RedDragonZ > Electronic Superiority Charge  Sensor Optimization Charge'></textarea>
 
       <div class="btnrow" style="margin-top:10px;">
-  <button id="applyBtn">Apply to roster</button>
-  <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
-
-  <button id="copyShareBtn" class="ghostbtn" type="button">
-    Copy Share Link URL
-  </button>
-
-  <span class="muted small">
-    Share links include roster + wanted list
-  </span>
-
-  <span class="muted small" id="statusText"></span>
-</div>
-
+        <button id="applyBtn">Apply to roster</button>
+        <button id="clearRosterBtn" class="dangerbtn">Clear roster</button>
+        <button id="copyShareBtn" class="ghostbtn" type="button">Copy Share Link URL</button>
+        <span class="muted small">Share links include roster + wanted list</span>
+        <span class="muted small" id="statusText"></span>
+      </div>
 
       <div class="hr"></div>
 
@@ -288,9 +283,7 @@
         <button id="clearWantedBtn" class="ghostbtn">Clear wanted</button>
       </div>
 
-      <div class="footnote">
-  Uses exact EVE command burst charge names.
-</div>
+      <div class="footnote">Uses exact EVE command burst charge names.</div>
     </div>
   </div>
 
@@ -311,14 +304,13 @@
 
       <table>
         <thead>
-  <tr>
-    <th style="width: 28%;">Wanted charge</th>
-    <th style="width: 36%;">Filled by (ship + ML)</th>
-    <th style="width: 14%;">Backup?</th>
-    <th>Notes</th>
-  </tr>
-</thead>
-
+          <tr>
+            <th style="width: 28%;">Wanted charge</th>
+            <th style="width: 36%;">Filled by (ship + ML)</th>
+            <th style="width: 14%;">Backup?</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
         <tbody id="wantedTable"></tbody>
       </table>
     </div>
@@ -351,33 +343,27 @@
     </div>
   </div>
 
-<div class="card foot" id="tipsCard">
-  <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
-    <div>
-      <div style="font-weight:650; letter-spacing:.2px;">Enjoying the tracker?</div>
-      <div class="muted small">
-        Tips keep it alive — send ISK to <b>Julius Flavus</b> in-game. ❤️
+  <div class="card foot" id="tipsCard">
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:650; letter-spacing:.2px;">Enjoying the tracker?</div>
+        <div class="muted small">Tips keep it alive — send ISK to <b>Julius Flavus</b> in-game. ❤️</div>
+      </div>
+
+      <div style="text-align:right;">
+        <div class="muted small">Fleets tracked (since 02-10-2026)</div>
+        <div id="fleetCount" class="mono" style="font-size:14px;">—</div>
       </div>
     </div>
-
-    <div style="text-align:right;">
-      <div class="muted small">Fleets tracked (since 02-10-2026)</div>
-      <div id="fleetCount" class="mono" style="font-size:14px;">—</div>
-    </div>
   </div>
-</div>
 
-<div class="card foot">
-  © <span id="year"></span> Julius Flavus. All rights reserved.
-</div>
-
-
-
+  <div class="card foot">
+    © <span id="year"></span> Julius Flavus. All rights reserved.
+  </div>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
-
 </div>
 
 <script>
@@ -414,9 +400,6 @@ function setFleetCountUI(n){
   el.textContent = (typeof n === "number") ? n.toLocaleString() : "—";
 }
 
-/* =========================
-   STATE / STORAGE
-========================= */
 const STORAGE_KEY = "eveBoostTracker_roster_v3_julius";
 
 function loadState() {
@@ -436,9 +419,6 @@ function loadState() {
 }
 function saveState(state) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-/* =========================
-   WANTED PROFILES
-========================= */
 function armorPvpWanted() {
   return [
     "Armor Reinforcement Charge",
@@ -473,9 +453,6 @@ function miningWanted() {
   ];
 }
 
-/* =========================
-   CHARGE CATEGORIES
-========================= */
 const INFO_CHARGES = new Set([
   "Electronic Hardening Charge",
   "Electronic Superiority Charge",
@@ -540,441 +517,58 @@ function chargeCategory(chargeName){
   return "other";
 }
 
-/* =========================
-   SHIPS
-========================= */
-const SHIPS_RAW = `Abaddon
-Absolution
-Adrestia
-Aeon
-Algos
-Aliastra Catalyst
-Alligator
-Amarr Shuttle
-Anathema
-Anshar
-Apocalypse
-Apocalypse Imperial Issue
-Apocalypse Navy Issue
-Apostle
-Apotheosis
-Arazu
-Arbitrator
-Archon
-Ares
-Ark
-Armageddon
-Armageddon Imperial Issue
-Armageddon Navy Issue
-Ashimmu
-Astarte
-Astero
-Atron
-Augoror
-Augoror Navy Issue
-Avalanche
-Avatar
-Azariel
-Badger
-Bane
-Bantam
-Barghest
-Basilisk
-Bellicose
-Bestla
-Bestower
-Bhaalgorn
-Bifrost
-Blackbird
-Boobook
-Bowhead
-Breacher
-Broadsword
-Brutix
-Brutix Navy Issue
-Brutix Navy Issue
-Burst
-Bustard
-Buzzard
-Caedes
-Caiman
-Caldari Navy Hookbill
-Caldari Shuttle
-Cambion
-Caracal
-Caracal Navy Issue
-Catalyst
-Catalyst Navy Issue
-Celestis
-Cenotaph
-Cerberus
-Chameleon
-Charon
-Cheetah
-Chemosh
-Chimera
-Chremoas
-Civilian Amarr Shuttle
-Civilian Caldari Shuttle
-Civilian Gallente Shuttle
-Civilian Minmatar Shuttle
-Claw
-Claymore
-Cobra
-Coercer
-Coercer Navy Issue
-Condor
-Confessor
-Corax
-Cormorant
-Cormorant Navy Issue
-Council Diplomatic Shuttle
-Covetor
-Crane
-Crow
-Crucifier
-Crucifier Navy Issue
-Cruor
-Crusader
-Curse
-Cybele
-Cyclone
-Cyclone Fleet Issue
-Cynabal
-Dagon
-Damavik
-Damnation
-Daredevil
-Deacon
-Deimos
-Deluge
-Devoter
-Dominix
-Dominix Navy Issue
-Dragoon
-Drake
-Drake Navy Issue
-Dramiel
-Draugur
-Drekavac
-Eagle
-Echelon
-Echo
-Eidolon
-Endurance
-Enforcer
-Enyo
-Eos
-Epithal
-Erebus
-Eris
-Etana
-Executioner
-Exequror
-Exequror Navy Issue
-Falcon
-Federation Navy Comet
-Fenrir
-Ferox
-Ferox Navy Issue
-Fiend
-Flycatcher
-Freki
-Gallente Shuttle
-Garmur
-Geri
-Gila
-Gnosis
-Gold Magnate
-Golem
-Goru's Shuttle
-Griffin
-Griffin Navy Issue
-Guardian
-Guardian-Vexor
-Guristas Shuttle
-Harbinger
-Harbinger Navy Issue
-Harpy
-Hawk
-Hecate
-Hel
-Helios
-Hematos
-Heretic
-Heron
-Heron Navy Issue
-Hoarder
-Hound
-Hubris
-Huginn
-Hulk
-Hurricane
-Hurricane Fleet Issue
-Hydra
-Hyena
-Hyperion
-Ibis
-Ikitursa
-Imicus
-Imicus Navy Issue
-Immolator
-Imp
-Impairor
-Impel
-Imperial Navy Slicer
-Incursus
-Inner Zone Shipping Catalyst
-Inner Zone Shipping Imicus
-Inquisitor
-Intaki Syndicate Catalyst
-InterBus Catalyst
-InterBus Shuttle
-Ishkur
-Ishtar
-Iteron Mark V
-Ixion
-Jackdaw
-Jaguar
-Karura
-Keres
-Kestrel
-Khizriel
-Kikimora
-Kirin
-Kitsune
-Komodo
-Kronos
-Kryos
-Lachesis
-Laelaps
-Legion
-Leopard
-Leshak
-Leviathan
-Lif
-Loggerhead
-Loki
-Machariel
-Mackinaw
-Maelstrom
-Magnate
-Magnate Navy Issue
-Magus
-Malediction
-Malice
-Maller
-Mamba
-Mammoth
-Marshal
-Mastodon
-Maulus
-Maulus Navy Issue
-Medusa
-Megathron
-Megathron Federate Issue
-Megathron Navy Issue
-Mekubal
-Merlin
-Metamorphosis
-Miasmos
-Miasmos Amastris Edition
-Miasmos Quafe Ultra Edition
-Miasmos Quafe Ultramarine Edition
-Miasmos Quafe Ultramarine Edition
-Miasmos Quafe Ultramarine Edition
-Mimir
-Minmatar Shuttle
-Minokawa
-Moa
-Molok
-Monitor
-Moracha
-Moros
-Moros Navy Issue
-Muninn
-Myrmidon
-Myrmidon Navy Issue
-Naga
-Naglfar
-Naglfar Fleet Issue
-Navitas
-Nemesis
-Nefantar Thrasher
-Nereus
-Nergal
-Nestor
-Nidhoggur
-Nighthawk
-Nightmare
-Ninazu
-Noctis
-Nomad
-Nyx
-Obelisk
-Occator
-Omen
-Omen Navy Issue
-Oneiros
-Onyx
-Opux Luxury Yacht
-Oracle
-Orca
-Orthrus
-Osprey
-Osprey Navy Issue
-Pacifier
-Paladin
-Panther
-Phantasm
-Phantom
-Phobos
-Phoenix
-Phoenix Navy Issue
-Pilgrim
-Pontifex
-Porpoise
-Praxis
-Primae
-Probe
-Probe Fleet Issue
-Procurer
-Prophecy
-Prophecy Navy Issue
-Prorator
-Prospect
-Proteus
-Providence
-Prowler
-Punisher
-Purifier
-Python
-Quafe Catalyst
-Rabisu
-Ragnarok
-Raiju
-Rapier
-Raptor
-Rattlesnake
-Rattlesnake Victory Edition
-Raven
-Raven Navy Issue
-Raven State Issue
-Reaper
-Redeemer
-Republic Fleet Firetail
-Retribution
-Retriever
-Revelation
-Revelation Navy Issue
-Revenant
-Rhea
-Rifter
-Rodiva
-Rokh
-Rook
-Rorqual
-Rupture
-Sabre
-Sacrilege
-Sarum Magnate
-Scalpel
-Scimitar
-Scorpion
-Scorpion Ishukone Watch
-Scorpion Navy Issue
-Scythe
-Scythe Fleet Issue
-Sentinel
-Shapash
-Sidewinder
-Sigil
-Silver Magnate
-Sin
-Skiff
-Skybreaker
-Slasher
-Sleipnir
-Specter
-Squall
-Stabber
-Stabber Fleet Issue
-Stiletto
+const SHIPS_RAW = `Pontifex
 Stork
-Stormbringer
-Stratios
-Stratios Emergency Responder
-Succubus
-Sukuuvestaa Heron
-Sunesis
-Svipul
-Taipan
-Talos
-Talwar
-Taranis
-Tash-Murkon Magnate
-Tayra
-Tempest
-Tempest Fleet Issue
-Tempest Tribal Issue
-Tengu
-Thalia
-Thanatos
-Tholos
-Thorax
-Thrasher
-Thrasher Fleet Issue
-Thunderchild
-Tiamat
-Torrent
-Tormentor
-Tornado
-Tristan
-Typhoon
-Typhoon Fleet Issue
-Utu
-Vagabond
-Valravn
-Vangel
-Vanquisher
-Vargur
-Vedmak
-Vehement
-Velator
-Vendetta
-Vengeance
-Venture
-Vexor
-Vexor Navy Issue
-Vherokior Probe
-Viator
-Victor
-Victorieux Luxury Yacht
-Vigil
-Vigil Fleet Issue
-Vigilant
-Vindicator
-Violator
-Virtuoso
-Visitant
+Magus
+Bifrost
+Absolution
+Damnation
+Nighthawk
 Vulture
-Whiptail
-Widow
-Wolf
-Worm
-Wraith
-Wreathe
-Wyvern
-Zarmazd
-Zealot
-Zephyr
-Zirnitra`;
+Astarte
+Eos
+Claymore
+Sleipnir
+Porpoise
+Orca
+Rorqual
+Outrider
+Prophecy
+Harbinger
+Ferox
+Drake
+Myrmidon
+Brutix
+Cyclone
+Hurricane
+Prophecy Navy Issue
+Harbinger Navy Issue
+Drake Navy Issue
+Ferox Navy Issue
+Myrmidon Navy Issue
+Brutix Navy Issue
+Hurricane Fleet Issue
+Cyclone Fleet Issue
+Confessor
+Jackdaw
+Hecate
+Svipul
+Avatar
+Leviathan
+Erebus
+Ragnarok
+Apostle
+Minokawa
+Ninazu
+Lif
+Archon
+Chimera
+Thanatos
+Nidhoggur
+Odysseus`;
 
 const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
-/* =========================
-   HELPERS
-========================= */
 function escapeHtml(str) {
   return (str || "").replace(/[&<>"']/g, s => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -1012,19 +606,15 @@ function setBackupForWantedName(chargeName, wantBackup){
     return { name: it.name, need: wantBackup ? 2 : 1 };
   });
 
-  // Update textarea without triggering "Wanted updated"
   muteWantedInput = true;
   wantedInput.value = wantedItemsToText(next);
   muteWantedInput = false;
 
-  // Persist + rerender once
   state.wantedText = wantedInput.value;
   saveState(state);
   renderAll("Backup updated");
 }
 
-
-/* Wanted backups: supports "Charge Name x2" */
 function parseWantedLine(line){
   const raw = (line || "").trim();
   if (!raw) return null;
@@ -1046,34 +636,132 @@ function getWantedItems(){
     .map(s => parseWantedLine(s))
     .filter(Boolean);
 }
-function getWantedList() { return getWantedItems().map(w => w.name); }
 
 function normShip(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
 const SHIP_NORMS = SHIP_LIST.map(s => ({ name: s, norm: normShip(s) })).sort((a,b) => b.norm.length - a.norm.length);
 
 const SHIP_ALIASES = new Map(Object.entries({
-  "damntion": "Damnation",
+  "ponti": "Pontifex",
+  "pont": "Pontifex",
+  "stork": "Stork",
+  "magus": "Magus",
+  "bifrost": "Bifrost",
+  "bifo": "Bifrost",
+  "bif": "Bifrost",
+  "abso": "Absolution",
+  "absol": "Absolution",
+  "damnation": "Damnation",
   "damn": "Damnation",
   "dam": "Damnation",
+  "damntion": "Damnation",
+  "nighthawk": "Nighthawk",
   "nhawk": "Nighthawk",
   "nighthk": "Nighthawk",
   "nighthwk": "Nighthawk",
   "nh": "Nighthawk",
+  "vulture": "Vulture",
   "vult": "Vulture",
   "vultr": "Vulture",
-  "clay": "Claymore",
+  "astarte": "Astarte",
+  "asta": "Astarte",
   "eos": "Eos",
-  "loki": "Loki",
-  "tengu": "Tengu",
-  "orca": "Orca",
+  "claymore": "Claymore",
+  "clay": "Claymore",
+  "sleipnir": "Sleipnir",
+  "sleip": "Sleipnir",
+  "slep": "Sleipnir",
+  "porpoise": "Porpoise",
   "porp": "Porpoise",
-  "pally": "Paladin",
-  "pal": "Paladin"
+  "orca": "Orca",
+  "rorqual": "Rorqual",
+  "rorq": "Rorqual",
+  "outrider": "Outrider",
+  "out": "Outrider",
+  "prophecy": "Prophecy",
+  "prop": "Prophecy",
+  "harbinger": "Harbinger",
+  "harb": "Harbinger",
+  "ferox": "Ferox",
+  "fero": "Ferox",
+  "drake": "Drake",
+  "myrmidon": "Myrmidon",
+  "myrm": "Myrmidon",
+  "brutix": "Brutix",
+  "brut": "Brutix",
+  "cyclone": "Cyclone",
+  "cycl": "Cyclone",
+  "hurricane": "Hurricane",
+  "cane": "Hurricane",
+  "hurr": "Hurricane",
+  "prophecy navy issue": "Prophecy Navy Issue",
+  "prop navy": "Prophecy Navy Issue",
+  "prop ni": "Prophecy Navy Issue",
+  "pni": "Prophecy Navy Issue",
+  "harbinger navy issue": "Harbinger Navy Issue",
+  "harb navy": "Harbinger Navy Issue",
+  "harb ni": "Harbinger Navy Issue",
+  "hni": "Harbinger Navy Issue",
+  "drake navy issue": "Drake Navy Issue",
+  "drake navy": "Drake Navy Issue",
+  "drake ni": "Drake Navy Issue",
+  "dni": "Drake Navy Issue",
+  "ferox navy issue": "Ferox Navy Issue",
+  "ferox navy": "Ferox Navy Issue",
+  "ferox ni": "Ferox Navy Issue",
+  "fni": "Ferox Navy Issue",
+  "myrmidon navy issue": "Myrmidon Navy Issue",
+  "myrm navy": "Myrmidon Navy Issue",
+  "myrm ni": "Myrmidon Navy Issue",
+  "mni": "Myrmidon Navy Issue",
+  "brutix navy issue": "Brutix Navy Issue",
+  "brut navy": "Brutix Navy Issue",
+  "brut ni": "Brutix Navy Issue",
+  "bni": "Brutix Navy Issue",
+  "hurricane fleet issue": "Hurricane Fleet Issue",
+  "hurricane fi": "Hurricane Fleet Issue",
+  "cane fi": "Hurricane Fleet Issue",
+  "hfi": "Hurricane Fleet Issue",
+  "cyclone fleet issue": "Cyclone Fleet Issue",
+  "cyclone fi": "Cyclone Fleet Issue",
+  "cycl fi": "Cyclone Fleet Issue",
+  "cfi": "Cyclone Fleet Issue",
+  "confessor": "Confessor",
+  "conf": "Confessor",
+  "jackdaw": "Jackdaw",
+  "jack": "Jackdaw",
+  "hecate": "Hecate",
+  "hec": "Hecate",
+  "svipul": "Svipul",
+  "svip": "Svipul",
+  "avatar": "Avatar",
+  "leviathan": "Leviathan",
+  "levi": "Leviathan",
+  "erebus": "Erebus",
+  "ereb": "Erebus",
+  "ragnarok": "Ragnarok",
+  "rag": "Ragnarok",
+  "ragna": "Ragnarok",
+  "apostle": "Apostle",
+  "apo": "Apostle",
+  "minokawa": "Minokawa",
+  "mino": "Minokawa",
+  "ninazu": "Ninazu",
+  "nina": "Ninazu",
+  "lif": "Lif",
+  "archon": "Archon",
+  "arch": "Archon",
+  "chimera": "Chimera",
+  "chim": "Chimera",
+  "thanatos": "Thanatos",
+  "thana": "Thanatos",
+  "thanny": "Thanatos",
+  "nidhoggur": "Nidhoggur",
+  "nid": "Nidhoggur",
+  "niddy": "Nidhoggur",
+  "odysseus": "Odysseus",
+  "ody": "Odysseus"
 }));
 
-/* =========================
-   DOM
-========================= */
 const chatInput = document.getElementById("chatInput");
 const wantedInput = document.getElementById("wantedInput");
 const statusText = document.getElementById("statusText");
@@ -1094,15 +782,10 @@ const profileMiningBtn = document.getElementById("profileMiningBtn");
 const clearWantedBtn = document.getElementById("clearWantedBtn");
 const copyShareBtn = document.getElementById("copyShareBtn");
 
-/* =========================
-   APP STATE (do NOT load localStorage yet)
-========================= */
 let state = { roster: {}, wantedText: "", selectedProfile: "" };
-
-// must be declared before any use
 let muteWantedInput = false;
-
 let wantedTimer = null;
+
 wantedInput.addEventListener("input", () => {
   if (muteWantedInput) return;
 
@@ -1114,10 +797,6 @@ wantedInput.addEventListener("input", () => {
   }, 400);
 });
 
-
-/* =========================
-   UI / RENDER
-========================= */
 function nowStamp() {
   const d = new Date();
   const pad = n => String(n).padStart(2,"0");
@@ -1175,6 +854,11 @@ function detectShip(line) {
   const tokens = ns.split(" ").filter(Boolean);
   for (const t of tokens) {
     if (SHIP_ALIASES.has(t)) return SHIP_ALIASES.get(t);
+  }
+
+  for (const [alias, ship] of SHIP_ALIASES.entries()) {
+    const pat = new RegExp(`(^|\\s)${escapeRegExp(alias)}(\\s|$)`, "i");
+    if (pat.test(ns)) return ship;
   }
 
   for (const s of SHIP_NORMS) {
@@ -1313,10 +997,10 @@ function buildRosterBoostIndex() {
 function renderRosterTable() {
   ensureShipDatalist();
   const keys = Object.keys(state.roster).sort((a, b) => {
-  const pa = state.roster[a]?.pilot || "";
-  const pb = state.roster[b]?.pilot || "";
-  return pa.localeCompare(pb, undefined, { sensitivity: "base" });
-});
+    const pa = state.roster[a]?.pilot || "";
+    const pb = state.roster[b]?.pilot || "";
+    return pa.localeCompare(pb, undefined, { sensitivity: "base" });
+  });
 
   if (!keys.length) {
     rosterTable.innerHTML = `<tr><td colspan="5" class="muted small">— empty roster —</td></tr>`;
@@ -1354,11 +1038,8 @@ function renderRosterTable() {
   });
 }
 
-/* =========================
-   WANTED COMPARISON (BACKUPS)
-========================= */
 function renderWantedComparison() {
-  const wantedItems = getWantedItems(); // [{name, need}]
+  const wantedItems = getWantedItems();
   const idx = buildRosterBoostIndex();
 
   let filledPrimary = 0, missingPrimary = 0;
@@ -1399,8 +1080,7 @@ function renderWantedComparison() {
       if (haveN) filledAny.push({ name: w, need: needN, have: haveN });
 
       const providers = fills.map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
-      const isDupe = haveN > 1;
-      if (isDupe) dupes.push({ charge: w, providers });
+      if (haveN > 1) dupes.push({ charge: w, providers });
 
       const pillClass = (haveN === 0) ? "bad" : (haveN < needN ? "warn" : "ok");
       const note =
@@ -1410,39 +1090,33 @@ function renderWantedComparison() {
 
       const isBackupWanted = needN > 1;
 
-rows.push(`
-  <tr>
-    <td>
-      <span class="pill ${pillClass}">${escapeHtml(w)}</span>
-      ${needN > 1 ? `<span class="pill neutral">x${needN}</span>` : ``}
-    </td>
-
-    <td class="mono small">${escapeHtml(providers.length ? providers.join(", ") : "—")}</td>
-
-    <td>
-      <label class="small" style="display:flex; align-items:center; gap:8px; margin:0; color:#9db0c6;">
-        <input type="checkbox"
-               data-backup="${escapeHtml(w)}"
-               ${isBackupWanted ? "checked" : ""} />
-        <span class="muted small">x2</span>
-      </label>
-    </td>
-
-    <td class="muted small">${escapeHtml(note)}</td>
-  </tr>
-`);
-
+      rows.push(`
+        <tr>
+          <td>
+            <span class="pill ${pillClass}">${escapeHtml(w)}</span>
+            ${needN > 1 ? `<span class="pill neutral">x${needN}</span>` : ``}
+          </td>
+          <td class="mono small">${escapeHtml(providers.length ? providers.join(", ") : "—")}</td>
+          <td>
+            <label class="small" style="display:flex; align-items:center; gap:8px; margin:0; color:#9db0c6;">
+              <input type="checkbox" data-backup="${escapeHtml(w)}" ${isBackupWanted ? "checked" : ""} />
+              <span class="muted small">x2</span>
+            </label>
+          </td>
+          <td class="muted small">${escapeHtml(note)}</td>
+        </tr>
+      `);
     }
   }
 
   wantedTable.innerHTML = rows.join("");
 
-wantedTable.querySelectorAll("input[type='checkbox'][data-backup]").forEach(cb => {
-  cb.addEventListener("change", () => {
-    const name = cb.getAttribute("data-backup") || "";
-    setBackupForWantedName(name, cb.checked);
+  wantedTable.querySelectorAll("input[type='checkbox'][data-backup]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const name = cb.getAttribute("data-backup") || "";
+      setBackupForWantedName(name, cb.checked);
+    });
   });
-});
 
   summaryPills.innerHTML = `
     <span class="pill ok">Primary filled: ${filledPrimary}</span>
@@ -1467,29 +1141,25 @@ wantedTable.querySelectorAll("input[type='checkbox'][data-backup]").forEach(cb =
       : `NEED PRIMARY\n— all requested charges are filled —\n\nNEED BACKUP\n—`;
 
   filledMsg.textContent = filledAny.length
-  ? `FILLED CHARGES\n` + filledAny.map(x => {
-      const providers = (idx.get(normalizeName(x.name)) || []).map(f =>
-        `${f.pilot}${f.ship ? ` ${f.ship}` : ""}${f.mindlink ? "+ML" : ""}`.trim()
-      );
+    ? `FILLED CHARGES\n` + filledAny.map(x => {
+        const providers = (idx.get(normalizeName(x.name)) || []).map(f =>
+          `${f.pilot}${f.ship ? ` ${f.ship}` : ""}${f.mindlink ? "+ML" : ""}`.trim()
+        );
 
-      const countNote = (x.need && x.need > 1) ? ` (${x.have}/${x.need})` : "";
-
-      // Two-line format: charge on its own line, providers indented below
-      const line1 = `${chatTagShort(x.name)} ${x.name}${countNote}`;
-      const line2 = `  ${providers.length ? providers.join("; ") : "—"}`;
-      return `${line1}\n${line2}`;
-    }).join("\n")
-  : `FILLED CHARGES\n— none detected on roster yet —`;
+        const countNote = (x.need && x.need > 1) ? ` (${x.have}/${x.need})` : "";
+        const line1 = `${chatTagShort(x.name)} ${x.name}${countNote}`;
+        const line2 = `  ${providers.length ? providers.join("; ") : "—"}`;
+        return `${line1}\n${line2}`;
+      }).join("\n")
+    : `FILLED CHARGES\n— none detected on roster yet —`;
 
   dupeMsg.textContent = dupes.length
-  ? `DUPLICATES\n` + dupes.map(d => {
-      // Two-line, wrap-proof format
-      const line1 = `${chatTagShort(d.charge)} ${d.charge}`;
-      const line2 = `  ${formatProviders(d.providers) || "—"}`;
-      return `${line1}\n${line2}`;
-    }).join("\n")
-  : `DUPLICATES\n—`;
-
+    ? `DUPLICATES\n` + dupes.map(d => {
+        const line1 = `${chatTagShort(d.charge)} ${d.charge}`;
+        const line2 = `  ${formatProviders(d.providers) || "—"}`;
+        return `${line1}\n${line2}`;
+      }).join("\n")
+    : `DUPLICATES\n—`;
 }
 
 function renderAll(reason="") {
@@ -1511,10 +1181,6 @@ function blinkAndClearPaste(delayMs = 180){
     setTimeout(() => chatInput.classList.remove("blinkClear"), 520);
   }, Math.max(0, delayMs));
 }
-
-/* =========================
-   SHARE LINK (URL HASH)
-========================= */
 
 async function buildShareUrlShort() {
   const payload = compressStateForShare();
@@ -1543,7 +1209,6 @@ async function tryLoadFromShortShare() {
   const payload = await res.json();
   return applySharedState(payload);
 }
-
 
 function compressStateForShare() {
   const slimRoster = {};
@@ -1604,8 +1269,6 @@ function applySharedState(payload) {
     };
   }
   state.roster = restored;
-
-  // Persist so it survives refresh (share link becomes your current state)
   saveState(state);
   return true;
 }
@@ -1627,9 +1290,6 @@ function hasShareHash(){
   return /#s=([A-Za-z0-9\-_]+)/.test(window.location.hash || "");
 }
 
-/* =========================
-   EVENTS
-========================= */
 applyBtn.onclick = async () => {
   const updates = parsePastedText(chatInput.value);
   if (!updates.length) { renderAll("No charges found in paste"); return; }
@@ -1640,7 +1300,6 @@ applyBtn.onclick = async () => {
   renderAll(`Applied (${added} added, ${updated} updated)`);
   blinkAndClearPaste(180);
 
-  // NEW: treat "first successful apply on empty roster" as fleet start
   if (wasEmpty && (added + updated) > 0) {
     const n = await incrementFleetCount();
     if (n !== null) setFleetCountUI(n);
@@ -1655,7 +1314,6 @@ clearRosterBtn.onclick = async () => {
   const n = await fetchFleetCount();
   if (n !== null) setFleetCountUI(n);
 };
-
 
 profileArmorBtn.onclick = () => setProfile("armor");
 profileShieldBtn.onclick = () => setProfile("shield");
@@ -1687,7 +1345,6 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 copyShareBtn?.addEventListener("click", async () => {
   statusText.textContent = "Uploading share link…";
 
-  // 1️⃣ Try short link (Cloudflare Worker)
   try {
     const shortUrl = await buildShareUrlShort();
     await navigator.clipboard.writeText(shortUrl);
@@ -1698,7 +1355,6 @@ copyShareBtn?.addEventListener("click", async () => {
     console.warn("Short share failed, falling back", err);
   }
 
-  // 2️⃣ Fallback: long URL (#s=…)
   try {
     const longUrl = buildShareUrl();
     await navigator.clipboard.writeText(longUrl);
@@ -1709,7 +1365,6 @@ copyShareBtn?.addEventListener("click", async () => {
     statusText.textContent = "✗ Share failed — copy manually";
     setTimeout(() => statusText.textContent = "", 2200);
 
-    // 3️⃣ Absolute last resort
     try {
       const longUrl = buildShareUrl();
       prompt("Copy this share link:", longUrl);
@@ -1717,10 +1372,6 @@ copyShareBtn?.addEventListener("click", async () => {
   }
 });
 
-
-/* =========================
-   STARTUP (FIXED: SHARE WINS)
-========================= */
 (async function startup(){
   let loaded = false;
 
@@ -1742,9 +1393,6 @@ copyShareBtn?.addEventListener("click", async () => {
   const n = await fetchFleetCount();
   if (n !== null) setFleetCountUI(n);
 })();
-
-
-
 </script>
 </body>
 </html>
