@@ -4,6 +4,16 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Julius Flavus — EVE Boost Tracker (Roster + Paste)</title>
+  <meta name="description" content="Paste command burst charges from EVE chat to see who is boosting what, and what's filled, missing, or duplicated."/>
+  <link rel="icon" type="image/png" href="assets/skull-logo.png"/>
+  <link rel="apple-touch-icon" href="assets/skull-logo.png"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Julius Flavus’ EVE Boost Tracker"/>
+  <meta property="og:description" content="Paste command burst charges from EVE chat to see who is boosting what, and what's filled, missing, or duplicated."/>
+  <meta property="og:url" content="https://julius-flavus.github.io/julius-flavus-boost-tracker/"/>
+  <meta property="og:image" content="https://julius-flavus.github.io/julius-flavus-boost-tracker/assets/skull-logo.png"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="theme-color" content="#0b0f14"/>
   <style>
 .footnote {
   margin-top: 2px;
@@ -565,7 +575,12 @@ Archon
 Chimera
 Thanatos
 Nidhoggur
-Odysseus`;
+Odysseus
+Legion
+Loki
+Proteus
+Tengu
+Monitor`;
 
 const SHIP_LIST = SHIPS_RAW.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
 
@@ -676,7 +691,6 @@ const SHIP_ALIASES = new Map(Object.entries({
   "rorqual": "Rorqual",
   "rorq": "Rorqual",
   "outrider": "Outrider",
-  "out": "Outrider",
   "prophecy": "Prophecy",
   "prop": "Prophecy",
   "harbinger": "Harbinger",
@@ -759,8 +773,14 @@ const SHIP_ALIASES = new Map(Object.entries({
   "nid": "Nidhoggur",
   "niddy": "Nidhoggur",
   "odysseus": "Odysseus",
-  "ody": "Odysseus"
+  "ody": "Odysseus",
+  "legion": "Legion",
+  "loki": "Loki",
+  "proteus": "Proteus",
+  "tengu": "Tengu",
+  "monitor": "Monitor"
 }));
+const SHIP_ALIASES_BY_LENGTH = [...SHIP_ALIASES.entries()].sort((a, b) => b[0].length - a[0].length);
 
 const chatInput = document.getElementById("chatInput");
 const wantedInput = document.getElementById("wantedInput");
@@ -841,7 +861,11 @@ function parsePilot(line) {
 function detectMindlink(line) { return /\b(\+ml|ml|mindlink|mind\s*link)\b/i.test(line); }
 
 function detectShip(line) {
-  const stripped = (line || "")
+  // Only look at the message text after the last " > ", so pilot names
+  // (e.g. "Drake Outlaw", "Archie Rag") are never mistaken for ships.
+  const parts = (line || "").split(" > ");
+  const message = parts.length > 1 ? parts[parts.length - 1] : (line || "");
+  const stripped = message
     .replace(/<url=showinfo:[^>]*>/gi, " ")
     .replace(/<\/url>/gi, " ")
     .replace(/\[\d{2}:\d{2}:\d{2}\]/g, " ")
@@ -851,12 +875,8 @@ function detectShip(line) {
   const ns = normShip(stripped);
   if (!ns) return "";
 
-  const tokens = ns.split(" ").filter(Boolean);
-  for (const t of tokens) {
-    if (SHIP_ALIASES.has(t)) return SHIP_ALIASES.get(t);
-  }
-
-  for (const [alias, ship] of SHIP_ALIASES.entries()) {
+  // Longest aliases first so "Drake Navy Issue" wins over "Drake".
+  for (const [alias, ship] of SHIP_ALIASES_BY_LENGTH) {
     const pat = new RegExp(`(^|\\s)${escapeRegExp(alias)}(\\s|$)`, "i");
     if (pat.test(ns)) return ship;
   }
@@ -1380,6 +1400,7 @@ copyShareBtn?.addEventListener("click", async () => {
     if (loaded) history.replaceState(null, "", window.location.pathname);
   } else if (typeof hasShareHash === "function" && hasShareHash()) {
     loaded = tryLoadFromShareLink();
+    if (loaded) history.replaceState(null, "", window.location.pathname);
   }
 
   if (!loaded) {
