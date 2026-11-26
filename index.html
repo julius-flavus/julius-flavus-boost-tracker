@@ -345,7 +345,7 @@ th { text-align:left; color:#9db0c6; font-weight: 600; }
 
       <div class="hr"></div>
 
-      <label>Duplicate charges (more than one pilot providing the same charge)</label>
+      <label>Duplicate charges (more pilots on a charge than wanted)</label>
       <div class="copybox" id="dupeMsg"></div>
       <div class="btnrow" style="margin-top:8px;">
         <button data-copy="dupeMsg">Copy</button>
@@ -496,13 +496,19 @@ const SHIELD_CHARGES = new Set([
   "Active Shielding Charge"
 ].map(s => s.toLowerCase()));
 
-const KNOWN_CHARGES = Array.from(new Set([
-  ...ARMOR_CHARGES,
-  ...SHIELD_CHARGES,
-  ...SKIRMISH_CHARGES,
-  ...INFO_CHARGES,
-  ...MINING_CHARGES
-])).map(s => String(s));
+const KNOWN_CHARGES = [
+  "Armor Reinforcement Charge", "Armor Energizing Charge", "Rapid Repair Charge",
+  "Shield Extension Charge", "Shield Harmonizing Charge", "Active Shielding Charge",
+  "Interdiction Maneuvers Charge", "Rapid Deployment Charge", "Evasive Maneuvers Charge", "Interdiction Nullifier Charge",
+  "Electronic Hardening Charge", "Electronic Superiority Charge", "Sensor Optimization Charge", "Recon Operation Charge", "Targeting Range Charge",
+  "Mining Laser Optimization Charge", "Mining Equipment Preservation Charge", "Mining Laser Field Enhancement Charge"
+];
+const CHARGE_PROPER_NAME = new Map(KNOWN_CHARGES.map(n => [n.toLowerCase(), n]));
+// Show known charges with their proper capitalization, whatever case they were pasted in.
+function properChargeName(name){
+  const n = normalizeChargeName(name);
+  return CHARGE_PROPER_NAME.get(n.toLowerCase()) || n;
+}
 
 function chatTagForCharge(chargeName){
   const n = (chargeName || "").trim().toLowerCase();
@@ -936,7 +942,7 @@ function upsertRoster(updates) {
     if (!key) continue;
 
     const existing = state.roster[key];
-    const cleanedBoosts = (u.boosts || []).map(normalizeChargeName).filter(Boolean);
+    const cleanedBoosts = (u.boosts || []).map(properChargeName).filter(Boolean);
 
     if (!existing) {
       state.roster[key] = { pilot: u.pilot, ship: u.ship || "", mindlink: !!u.mindlink, boosts: cleanedBoosts, updatedAt: Date.now() };
@@ -1039,7 +1045,7 @@ function renderRosterTable() {
             <span class="pill ${r.mindlink ? "ok" : "warn"}">${r.mindlink ? "+ML" : "—"}</span>
           </div>
         </td>
-        <td class="mono small">${escapeHtml((r.boosts||[]).join(" | "))}</td>
+        <td class="mono small">${escapeHtml((r.boosts||[]).map(properChargeName).join(" | "))}</td>
         <td><button class="ghostbtn" data-remove="${escapeHtml(k)}">Remove</button></td>
       </tr>
     `;
@@ -1100,7 +1106,7 @@ function renderWantedComparison() {
       if (haveN) filledAny.push({ name: w, need: needN, have: haveN });
 
       const providers = fills.map(f => `${f.pilot}${f.ship ? ` (${f.ship})` : ""}${f.mindlink ? " +ML" : ""}`.trim());
-      if (haveN > 1) dupes.push({ charge: w, providers });
+      if (haveN > needN) dupes.push({ charge: w, providers }); // more pilots than wanted (backups don't count)
 
       const pillClass = (haveN === 0) ? "bad" : (haveN < needN ? "warn" : "ok");
       const note =
@@ -1327,6 +1333,8 @@ applyBtn.onclick = async () => {
 };
 
 clearRosterBtn.onclick = async () => {
+  const count = Object.keys(state.roster).length;
+  if (count && !confirm(`Clear all ${count} pilot${count === 1 ? "" : "s"} from the roster? This can't be undone.`)) return;
   state.roster = {};
   saveState(state);
   renderAll("Roster cleared");
